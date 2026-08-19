@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="as">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediTree - Home Collection & Billing</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-blue: #0077b6;
+      --primary-green: #70b031;
+      --dark-blue: #023e8a;
+      --bg-color: #f4f7f6;
+      --card-bg: #ffffff;
+      --text-main: #2b2d42;
+      --text-muted: #6c757d;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      padding: 15px;
+    }
+
+    .container {
+      max-width: 650px;
+      margin: 0 auto;
+    }
+
+    .header-card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      margin-bottom: 20px;
+      border-top: 5px solid var(--primary-blue);
+    }
+
+    .logo-img {
+      max-width: 180px;
+      height: auto;
+      margin-bottom: 5px;
+    }
+
+    .subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .form-card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--dark-blue);
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .input-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .full-width {
+      grid-column: span 2;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 5px;
+      color: var(--text-muted);
+    }
+
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      transition: border 0.3s;
+    }
+
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: var(--primary-blue);
+    }
+
+    /* Test Selector */
+    .search-box {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+
+    .test-list-container {
+      max-height: 250px;
+      overflow-y: auto;
+      border: 1px solid #edf2f7;
+      border-radius: 8px;
+      padding: 5px;
+    }
+
+    .test-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 10px;
+      border-bottom: 1px solid #f1f5f9;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .test-item:hover {
+      background-color: #f8fafc;
+    }
+
+    .test-item input {
+      margin-right: 8px;
+      transform: scale(1.1);
+    }
+
+    .test-price {
+      font-weight: 600;
+      color: var(--primary-blue);
+    }
+
+    .vial-tag {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-left: 6px;
+      font-weight: 500;
+    }
+
+    .vial-VIOLET { background: #e9d5ff; color: #6b21a8; }
+    .vial-RED { background: #fee2e2; color: #991b1b; }
+    .vial-GREY { background: #e2e8f0; color: #334155; }
+    .vial-BLUE { background: #dbeafe; color: #1e40af; }
+    .vial-BLACK { background: #f3f4f6; color: #111827; }
+
+    /* Sticky Bottom Bar */
+    .summary-footer {
+      position: sticky;
+      bottom: 15px;
+      background: #023e8a;
+      color: white;
+      border-radius: 12px;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-submit {
+      background: var(--primary-green);
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    /* Professional Invoice / Screenshot View */
+    #receiptModal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 100;
+      padding: 15px;
+      overflow-y: auto;
+    }
+
+    .receipt-card {
+      max-width: 480px;
+      background: white;
+      margin: 20px auto;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      border: 1px solid #e2e8f0;
+    }
+
+    .receipt-header {
+      text-align: center;
+      border-bottom: 2px dashed #cbd5e1;
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+    }
+
+    .receipt-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 13px;
+    }
+
+    .receipt-table th, .receipt-table td {
+      padding: 6px 4px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .receipt-table th {
+      text-align: left;
+      color: var(--text-muted);
+    }
+
+    .receipt-total {
+      border-top: 2px solid #000;
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      padding-top: 8px;
+      margin-top: 8px;
+    }
+
+    .btn-close {
+      width: 100%;
+      background: #334155;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Header -->
+  <div class="header-card">
+    <img src="logo.jpg" alt="MediTree" class="logo-img" onerror="this.src='https://via.placeholder.com/180x60?text=MediTree'">
+    <p class="subtitle">Clinic & Diagnostic Centre | Home Collection</p>
+  </div>
+
+  <!-- Patient Details -->
+  <div class="form-card">
+    <div class="section-title">📝 ৰোগীৰ বিৱৰণ (Patient Details)</div>
+    <div class="input-grid">
+      <div class="form-group full-width">
+        <label>Patient Full Name *</label>
+        <input type="text" id="pName" placeholder="ৰোগীৰ সম্পূৰ্ণ নাম">
+      </div>
+      <div class="form-group">
+        <label>Age *</label>
+        <input type="number" id="pAge" placeholder="বয়স">
+      </div>
+      <div class="form-group">
+        <label>Sex *</label>
+        <select id="pSex">
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="form-group full-width">
+        <label>Phone Number *</label>
+        <input type="tel" id="pPhone" placeholder="ফোন নম্বৰ">
+      </div>
+      <div class="form-group full-width">
+        <label>Address / Collection Location *</label>
+        <textarea id="pAddress" rows="2" placeholder="নমুনা সংগ্ৰহ কৰিবলগীয়া ঠিকনা"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Test Selection -->
+  <div class="form-card">
+    <div class="section-title">🧪 টেষ্ট বাচনি কৰক (Select Tests)</div>
+    <input type="text" id="searchTest" class="search-box" placeholder="🔍 টেষ্টৰ নাম বিচাৰক (e.g. CBC, Thyroid, KFT)..." onkeyup="filterTests()">
+    
+    <div class="test-list-container" id="testList"></div>
+  </div>
+
+  <!-- Sticky Bottom Calculation Bar -->
+  <div class="summary-footer">
+    <div>
+      <div style="font-size: 11px; opacity: 0.8;">Selected: <span id="selectedCount">0</span> Tests</div>
+      <div style="font-size: 18px; font-weight: 700;">Total: ₹<span id="totalDisplay">0</span></div>
+    </div>
+    <button class="btn-submit" onclick="generateReceipt()">Booking Receipt চাওক</button>
+  </div>
+</div>
+
+<!-- Receipt Modal for Employee Screenshot -->
+<div id="receiptModal">
+  <div class="receipt-card" id="receiptContent">
+    <div class="receipt-header">
+      <h2 style="color: #0077b6; margin-bottom: 2px;">MediTree</h2>
+      <p style="font-size: 11px; color: #64748b;">YOUR HEALTH, OUR RESPONSIBILITY</p>
+      <p style="font-size: 10px; color: #94a3b8;">Near SKK Civil Hospital, Golaghat | +91-6000476108</p>
+    </div>
+
+    <div style="font-size: 12px; margin-bottom: 10px; line-height: 1.6;">
+      <div><strong>Date:</strong> <span id="rDate"></span></div>
+      <div><strong>Patient:</strong> <span id="rName"></span> (<span id="rAgeSex"></span>)</div>
+      <div><strong>Phone:</strong> <span id="rPhone"></span></div>
+      <div><strong>Address:</strong> <span id="rAddress"></span></div>
+    </div>
+
+    <table class="receipt-table">
+      <thead>
+        <tr>
+          <th>Test Name</th>
+          <th>Vial</th>
+          <th style="text-align: right;">Price</th>
+        </tr>
+      </thead>
+      <tbody id="rTestTableBody"></tbody>
+    </table>
+
+    <div class="receipt-total">
+      <span>Total Amount:</span>
+      <span style="color: #0077b6;">₹<span id="rTotal">0</span></span>
+    </div>
+
+    <p style="font-size: 10px; text-align: center; color: #94a3b8; margin-top: 15px;">
+      *এই স্লিপখন কৰ্মীজনে সংগ্ৰহৰ প্ৰমাণ হিচাপে Screenshot ৰাখক।
+    </p>
+
+    <button class="btn-close" onclick="closeModal()">Close / Edit</button>
+  </div>
+</div>
+
+<script>
+  // Complete 156 Tests Database from Price List
+  const testsData = [
+    { name: "ABO, Rh GROUPING", price: 100, vial: "VIOLET" },
+    { name: "ABSOLUTE EOSINOPHIL COUNT", price: 150, vial: "VIOLET" },
+    { name: "ABSOLUTE LYMPHOCYTE COUNT", price: 150, vial: "VIOLET" },
+    { name: "ABSOLUTE MONOCYTE COUNT", price: 150, vial: "VIOLET" },
+    { name: "ABSOLUTE NEUTROPHIL COUNT", price: 150, vial: "VIOLET" },
+    { name: "ADA - TBM", price: 750, vial: "RED" },
+    { name: "Albumin", price: 100, vial: "RED" },
+    { name: "Allergy Profile", price: 1200, vial: "VIOLET & RED" },
+    { name: "AMH", price: 2300, vial: "RED" },
+    { name: "AMMONIA", price: 1000, vial: "VIOLET" },
+    { name: "ANTENATAL CHECK UP (ANC)", price: 2900, vial: "GREY, VIOLET & RED" },
+    { name: "ANTI CCP", price: 1600, vial: "RED" },
+    { name: "ANTI TPO", price: 2000, vial: "RED" },
+    { name: "ANTINUCLEAR ANTI BODY (ANA)", price: 1000, vial: "RED" },
+    { name: "ANTINUCLEAR ANTI BODY Reflex (ANA Profile)", price: 4000, vial: "RED" },
+    { name: "APTT", price: 500, vial: "BLUE" },
+    { name: "ASO titre (By Immunoturbidity)", price: 500, vial: "RED" },
+    { name: "BAND CELL", price: 150, vial: "VIOLET" },
+    { name: "Beta HCG, Serum", price: 900, vial: "RED" },
+    { name: "BIOPSY- Small Tissue", price: 800, vial: "NA" },
+    { name: "BIOPSY- Medium Tissue", price: 1000, vial: "NA" },
+    { name: "BIOPSY- Large Tissue", price: 1200, vial: "NA" },
+    { name: "BIOPSY- Extra Large Tissue", price: 2000, vial: "NA" },
+    { name: "BLEEDING TIME/CLOTTING TIME (BT/CT)", price: 50, vial: "NA" },
+    { name: "BLOOD UREA", price: 200, vial: "RED" },
+    { name: "BUN", price: 150, vial: "RED" },
+    { name: "CPK MB", price: 1350, vial: "RED" },
+    { name: "CRP (TITRE) immunoturbidity", price: 450, vial: "RED" },
+    { name: "CA 125", price: 1600, vial: "RED" },
+    { name: "CBC", price: 400, vial: "VIOLET" },
+    { name: "CHOLESTEROL TOTAL", price: 200, vial: "RED" },
+    { name: "COAGULATION PROFILE", price: 1200, vial: "BLUE" },
+    { name: "CSF ANALYSIS", price: 550, vial: "NA" },
+    { name: "DENGUE, Serology Test", price: 900, vial: "RED" },
+    { name: "DIABETIC PROFILE", price: 2500, vial: "GREY, VIOLET" },
+    { name: "Differential Leucocyte Count (D.L.C)", price: 150, vial: "VIOLET" },
+    { name: "DIRECT COOMBS TEST", price: 250, vial: "RED" },
+    { name: "DIRECT/INDIRECT BILIRUBIN", price: 150, vial: "RED" },
+    { name: "eGFR", price: 500, vial: "RED" },
+    { name: "ELECTROLYTE 3 (THREE) PARAMETERS", price: 600, vial: "RED" },
+    { name: "ESR", price: 100, vial: "BLACK" },
+    { name: "FASTING PLASMA GLUCOSE (FBS)", price: 50, vial: "GREY" },
+    { name: "FERRITIN", price: 1000, vial: "RED" },
+    { name: "FERTILITY PROFILE", price: 1500, vial: "RED" },
+    { name: "FERTILITY PROFILE (MALE)", price: 2400, vial: "RED" },
+    { name: "FSH", price: 650, vial: "RED" },
+    { name: "FT3", price: 600, vial: "RED" },
+    { name: "FT4", price: 600, vial: "RED" },
+    { name: "FUNGAL SMEAR", price: 250, vial: "NA" },
+    { name: "G6PD", price: 600, vial: "VIOLET" },
+    { name: "GAMMA G. T. (GGT)", price: 400, vial: "RED" },
+    { name: "GCT WITH 75 GM GLUCOSE", price: 150, vial: "GREY" },
+    { name: "GLUCOSE TOLERENCE TEST", price: 400, vial: "GREY" },
+    { name: "GRAM STAIN", price: 150, vial: "VIOLET" },
+    { name: "HDL CHOLESTEROL", price: 350, vial: "RED" },
+    { name: "HAEMOGLOBIN (Hb)", price: 100, vial: "VIOLET" },
+    { name: "Hb TYPING", price: 1400, vial: "VIOLET" },
+    { name: "HbA1C", price: 600, vial: "VIOLET" },
+    { name: "HEPATITIS A/HAV (SCREENING)", price: 600, vial: "RED" },
+    { name: "HEPATITIS B SURFACE AG (HBsAg)", price: 400, vial: "RED" },
+    { name: "HEPATITIS C (SCREENING)", price: 400, vial: "RED" },
+    { name: "HEPATITIS E (SCREENING)", price: 600, vial: "RED" },
+    { name: "HEPATITIS PANEL", price: 3500, vial: "RED" },
+    { name: "HIV (I & II) SCREENING", price: 350, vial: "RED" },
+    { name: "IMMATURE CELL", price: 150, vial: "VIOLET" },
+    { name: "INDIRECT COOMBS TEST", price: 1100, vial: "RED" },
+    { name: "IRON", price: 500, vial: "RED" },
+    { name: "IRON & TIBC", price: 750, vial: "RED" },
+    { name: "IRON & UIBC", price: 750, vial: "RED" },
+    { name: "IRON PROFILE", price: 1500, vial: "RED" },
+    { name: "KFT (WITH 3 PARA ELECTROLYTE)", price: 1100, vial: "RED" },
+    { name: "KOH TEST FOR SKIN & NAILS", price: 300, vial: "NA" },
+    { name: "LDH", price: 650, vial: "RED" },
+    { name: "Leptospira (IgM/IgG)", price: 600, vial: "RED" },
+    { name: "LH", price: 650, vial: "RED" },
+    { name: "LIPASE", price: 500, vial: "RED" },
+    { name: "LIPID PROFILE", price: 800, vial: "RED" },
+    { name: "LIVER FUNCTION TEST (LFT)", price: 800, vial: "RED" },
+    { name: "M.P. By Slide Method / PBF FOR MP", price: 250, vial: "VIOLET" },
+    { name: "MALARIA PF/PV CARD RAPID TEST", price: 250, vial: "VIOLET" },
+    { name: "MALIGNANT CELL", price: 550, vial: "VIOLET" },
+    { name: "MICROALBUMIN, Spot Urine", price: 600, vial: "NA" },
+    { name: "NT PRO BNP", price: 1750, vial: "RED" },
+    { name: "PBS FOR CELL MORPHOLOGY", price: 250, vial: "VIOLET" },
+    { name: "PLATELET COUNT", price: 100, vial: "VIOLET" },
+    { name: "PLEURAL FLUID ANALYSIS: PHYSICAL, CHEMICAL AND MICROSCOPIC", price: 850, vial: "PF" },
+    { name: "PLEURAL FLUID ANALYSIS: CYTOLOGICAL", price: 500, vial: "PF" },
+    { name: "PLEURAL FLUID ANALYSIS: ADA", price: 650, vial: "PF" },
+    { name: "PLEURAL FLUID ANALYSIS: LH", price: 400, vial: "PF" },
+    { name: "POST PRANDIAL PLASMA GLUCOSE (PPBS)", price: 50, vial: "GREY" },
+    { name: "PROLACTIN", price: 900, vial: "RED" },
+    { name: "PROTHROMBIN TIME (PT INR)", price: 400, vial: "BLUE" },
+    { name: "PSA", price: 1050, vial: "RED" },
+    { name: "QUANTI FERON", price: 1800, vial: "GREEN" },
+    { name: "QUANTITATIVE HBsAg", price: 600, vial: "RED" },
+    { name: "QUANTITATIVE HCV", price: 600, vial: "RED" },
+    { name: "QUANTITATIVE HIV", price: 600, vial: "RED" },
+    { name: "R.A FACTOR", price: 250, vial: "RED" },
+    { name: "RANDOM PLASMA GLUCOSE (RBS)", price: 100, vial: "GREY" },
+    { name: "RETICULOCYTE COUNT", price: 300, vial: "VIOLET" },
+    { name: "Rh ANTIBODY TITRE", price: 650, vial: "VIOLET" },
+    { name: "ROUTINE EXAM. OF BLOOD", price: 300, vial: "VIOLET" },
+    { name: "Scrub typhus (IgM/IgG)", price: 500, vial: "RED" },
+    { name: "SGOT/AST", price: 150, vial: "RED" },
+    { name: "SGPT/ALT", price: 150, vial: "RED" },
+    { name: "SEMEN ANALYSIS", price: 500, vial: "NA" },
+    { name: "Sepsis Screen", price: 800, vial: "VIOLET & RED" },
+    { name: "SERUM ALK. PHOSPHATASE", price: 200, vial: "RED" },
+    { name: "SERUM AMYLASE", price: 450, vial: "RED" },
+    { name: "SERUM BILIRUBIN, TOTAL", price: 150, vial: "RED" },
+    { name: "SERUM CALCIUM", price: 250, vial: "RED" },
+    { name: "SERUM C-PEPTIDE", price: 1000, vial: "RED" },
+    { name: "SERUM CHLORIDE", price: 250, vial: "RED" },
+    { name: "SERUM CREATININE", price: 150, vial: "RED" },
+    { name: "SERUM IgE", price: 900, vial: "RED" },
+    { name: "SERUM MAGNESIUM", price: 500, vial: "RED" },
+    { name: "SERUM PHOSPHATE", price: 350, vial: "RED" },
+    { name: "SERUM PHOSPHORUS", price: 500, vial: "RED" },
+    { name: "SERUM POTASSIUM (K)", price: 250, vial: "RED" },
+    { name: "SERUM SODIUM (Na)", price: 250, vial: "RED" },
+    { name: "SPUTUM AFB (Z.N. STAIN)", price: 250, vial: "NA" },
+    { name: "Sputum AFB Culture", price: 1100, vial: "NA" },
+    { name: "STOOL for Culture and Sensitivity", price: 600, vial: "NA" },
+    { name: "STOOL FOR OCCULT BLOOD", price: 150, vial: "NA" },
+    { name: "STOOL RE", price: 150, vial: "NA" },
+    { name: "T3", price: 400, vial: "RED" },
+    { name: "T4", price: 400, vial: "RED" },
+    { name: "TESTOSTERONE - FREE", price: 2600, vial: "RED" },
+    { name: "TESTOSTERONE - TOTAL", price: 900, vial: "RED" },
+    { name: "THYROID PROFILE, TOTAL", price: 700, vial: "RED" },
+    { name: "TORCH PANEL (10 PROFILE)", price: 3000, vial: "RED" },
+    { name: "TOTAL PROTEIN & FRACTION", price: 300, vial: "RED" },
+    { name: "TOTAL R B C COUNT", price: 100, vial: "VIOLET" },
+    { name: "TOTAL W B C COUNT (TC)", price: 100, vial: "VIOLET" },
+    { name: "TOXO TEST (IgM & IgG)", price: 1500, vial: "RED" },
+    { name: "TRIGLYCERIDE", price: 250, vial: "RED" },
+    { name: "TROPONIN I TEST", price: 1250, vial: "RED" },
+    { name: "TROPONIN T TEST", price: 1300, vial: "RED" },
+    { name: "TSH", price: 400, vial: "RED" },
+    { name: "TYPHIDOT", price: 350, vial: "RED" },
+    { name: "URIC ACID", price: 150, vial: "RED" },
+    { name: "Urine Albumin", price: 100, vial: "NA" },
+    { name: "URINE CULTURE", price: 350, vial: "NA" },
+    { name: "URINE FOR ACR", price: 600, vial: "NA" },
+    { name: "URINE PREGNANCY TEST / beta HCG", price: 150, vial: "NA" },
+    { name: "URINE PROTEIN 24 HOURS", price: 350, vial: "NA" },
+    { name: "URINE R.E.", price: 150, vial: "NA" },
+    { name: "Urine Sugar", price: 100, vial: "NA" },
+    { name: "VDRL KIT", price: 400, vial: "RED" },
+    { name: "Vitamin A", price: 4000, vial: "RED" },
+    { name: "Vitamin B12", price: 1500, vial: "RED" },
+    { name: "Vitamin C", price: 3500, vial: "RED" },
+    { name: "VITAMIN D", price: 1700, vial: "RED" },
+    { name: "Vitamin E", price: 2500, vial: "RED" },
+    { name: "Vitamin K", price: 4500, vial: "RED" },
+    { name: "WIDAL TEST", price: 250, vial: "RED" }
+  ];
+
+  let selectedTests = [];
+
+  function renderTests(list) {
+    const container = document.getElementById('testList');
+    container.innerHTML = '';
+    list.forEach((t, index) => {
+      const isChecked = selectedTests.some(item => item.name === t.name);
+      const div = document.createElement('div');
+      div.className = 'test-item';
+      div.innerHTML = `
+        <label style="display:flex; align-items:center; cursor:pointer; width:70%;">
+          <input type="checkbox" onchange="toggleTest('${t.name.replace(/'/g, "\\'")}', ${t.price}, '${t.vial}')" ${isChecked ? 'checked' : ''}>
+          <span>${t.name}</span>
+          <span class="vial-tag vial-${t.vial}">${t.vial}</span>
+        </label>
+        <span class="test-price">₹${t.price}</span>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  function filterTests() {
+    const q = document.getElementById('searchTest').value.toLowerCase();
+    const filtered = testsData.filter(t => t.name.toLowerCase().includes(q));
+    renderTests(filtered);
+  }
+
+  function toggleTest(name, price, vial) {
+    const idx = selectedTests.findIndex(t => t.name === name);
+    if (idx > -1) {
+      selectedTests.splice(idx, 1);
+    } else {
+      selectedTests.push({ name, price, vial });
+    }
+    updateTotal();
+  }
+
+  function updateTotal() {
+    const total = selectedTests.reduce((acc, curr) => acc + curr.price, 0);
+    document.getElementById('totalDisplay').innerText = total;
+    document.getElementById('selectedCount').innerText = selectedTests.length;
+  }
+
+  function generateReceipt() {
+    const name = document.getElementById('pName').value.trim();
+    const age = document.getElementById('pAge').value.trim();
+    const sex = document.getElementById('pSex').value;
+    const phone = document.getElementById('pPhone').value.trim();
+    const address = document.getElementById('pAddress').value.trim();
+
+    if (!name || !phone || selectedTests.length === 0) {
+      alert("অনুগ্ৰহ কৰি Patient Name, Phone নম্বৰ দিয়ক আৰু কমেও এটা Test বাছক!");
+      return;
+    }
+
+    document.getElementById('rDate').innerText = new Date().toLocaleString();
+    document.getElementById('rName').innerText = name;
+    document.getElementById('rAgeSex').innerText = `${age} Y / ${sex}`;
+    document.getElementById('rPhone').innerText = phone;
+    document.getElementById('rAddress').innerText = address || 'N/A';
+
+    const tbody = document.getElementById('rTestTableBody');
+    tbody.innerHTML = '';
+    selectedTests.forEach(t => {
+      tbody.innerHTML += `
+        <tr>
+          <td>${t.name}</td>
+          <td><span class="vial-tag vial-${t.vial}">${t.vial}</span></td>
+          <td style="text-align: right; font-weight: 600;">₹${t.price}</td>
+        </tr>
+      `;
+    });
+
+    const total = selectedTests.reduce((acc, curr) => acc + curr.price, 0);
+    document.getElementById('rTotal').innerText = total;
+    document.getElementById('receiptModal').style.display = 'block';
+  }
+
+  function closeModal() {
+    document.getElementById('receiptModal').style.display = 'none';
+  }
+
+  // Initial load
+  renderTests(testsData);
+</script>
+
+</body>
+</html>
