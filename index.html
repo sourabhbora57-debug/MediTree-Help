@@ -3,83 +3,133 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MediTree - Home Collection & Billing</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <title>MediTree - Clinic & Home Collection</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary-blue: #0077b6;
-      --primary-green: #70b031;
-      --dark-blue: #023e8a;
-      --bg-color: #f4f7f6;
-      --card-bg: #ffffff;
-      --text-main: #2b2d42;
-      --text-muted: #6c757d;
+      --primary: #0284c7;
+      --primary-dark: #0369a1;
+      --primary-soft: #e0f2fe;
+      --accent-green: #10b981;
+      --accent-green-dark: #059669;
+      --bg-page: #f1f5f9;
+      --surface: #ffffff;
+      --text-title: #0f172a;
+      --text-body: #334155;
+      --text-muted: #64748b;
+      --border-subtle: #e2e8f0;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.03);
+      --shadow-md: 0 8px 24px -4px rgba(15, 23, 42, 0.06);
+      --shadow-lg: 0 16px 36px -6px rgba(15, 23, 42, 0.12);
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Poppins', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
-      background-color: var(--bg-color);
-      color: var(--text-main);
-      padding: 15px;
+      background-color: var(--bg-page);
+      color: var(--text-body);
+      padding: 16px 12px 100px 12px;
+      line-height: 1.5;
     }
 
     .container {
-      max-width: 650px;
+      max-width: 600px;
       margin: 0 auto;
     }
 
+    /* Modern Professional Header */
     .header-card {
-      background: var(--card-bg);
-      border-radius: 16px;
+      background: var(--surface);
+      border-radius: var(--radius-lg);
       padding: 20px;
       text-align: center;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-      margin-bottom: 20px;
-      border-top: 5px solid var(--primary-blue);
+      box-shadow: var(--shadow-md);
+      margin-bottom: 16px;
+      border: 1px solid var(--border-subtle);
     }
 
-    .logo-img {
-      max-width: 180px;
-      height: auto;
-      margin-bottom: 5px;
+    .brand-wrapper {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 4px;
     }
 
-    .subtitle {
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, var(--primary) 0%, #0d9488 100%);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      box-shadow: 0 4px 10px rgba(2, 132, 199, 0.25);
+    }
+
+    .brand-name {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--text-title);
+    }
+
+    .brand-name span {
+      color: var(--primary);
+    }
+
+    .subtitle-badge {
+      display: inline-block;
       font-size: 11px;
-      color: var(--text-muted);
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
       font-weight: 600;
+      color: #0369a1;
+      background: var(--primary-soft);
+      padding: 4px 12px;
+      border-radius: 20px;
+      letter-spacing: 0.3px;
+      margin-top: 4px;
     }
 
+    /* Section Cards */
     .form-card {
-      background: var(--card-bg);
-      border-radius: 16px;
+      background: var(--surface);
+      border-radius: var(--radius-md);
       padding: 20px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-      margin-bottom: 20px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 16px;
+      border: 1px solid var(--border-subtle);
     }
 
     .section-title {
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--dark-blue);
-      margin-bottom: 15px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-title);
+      margin-bottom: 16px;
       display: flex;
       align-items: center;
       gap: 8px;
     }
 
+    .section-title svg {
+      color: var(--primary);
+    }
+
     .input-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      gap: 14px;
     }
 
     .full-width {
@@ -89,169 +139,229 @@
     .form-group label {
       display: block;
       font-size: 12px;
-      font-weight: 500;
-      margin-bottom: 5px;
+      font-weight: 600;
+      margin-bottom: 6px;
       color: var(--text-muted);
     }
 
     .form-group input, .form-group select, .form-group textarea {
       width: 100%;
-      padding: 10px 12px;
-      border: 1.5px solid #e2e8f0;
-      border-radius: 8px;
+      padding: 11px 14px;
+      border: 1.5px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
       font-size: 14px;
+      color: var(--text-title);
+      background-color: #f8fafc;
       outline: none;
-      transition: border 0.3s;
+      transition: all 0.2s ease;
     }
 
     .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-      border-color: var(--primary-blue);
+      border-color: var(--primary);
+      background-color: #ffffff;
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
     }
 
-    /* Test Selector */
-    .search-box {
-      width: 100%;
-      padding: 12px;
-      border: 2px solid #e2e8f0;
-      border-radius: 10px;
-      font-size: 14px;
+    /* Search & Test Selector */
+    .search-box-wrapper {
+      position: relative;
       margin-bottom: 12px;
     }
 
+    .search-box-wrapper input {
+      width: 100%;
+      padding: 12px 14px 12px 38px;
+      border: 1.5px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      outline: none;
+      background-color: #f8fafc;
+      transition: all 0.2s ease;
+    }
+
+    .search-box-wrapper input:focus {
+      border-color: var(--primary);
+      background-color: #ffffff;
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+
     .test-list-container {
-      max-height: 250px;
+      max-height: 280px;
       overflow-y: auto;
-      border: 1px solid #edf2f7;
-      border-radius: 8px;
-      padding: 5px;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      background: #ffffff;
     }
 
     .test-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 8px 10px;
+      padding: 10px 14px;
       border-bottom: 1px solid #f1f5f9;
       cursor: pointer;
       font-size: 13px;
+      transition: background 0.15s;
+    }
+
+    .test-item:last-child {
+      border-bottom: none;
     }
 
     .test-item:hover {
       background-color: #f8fafc;
     }
 
-    .test-item input {
-      margin-right: 8px;
-      transform: scale(1.1);
+    .test-item input[type="checkbox"] {
+      margin-right: 10px;
+      accent-color: var(--primary);
+      width: 17px;
+      height: 17px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .test-title-group {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
     }
 
     .test-price {
-      font-weight: 600;
-      color: var(--primary-blue);
+      font-weight: 700;
+      color: var(--primary-dark);
+      font-size: 14px;
+      white-space: nowrap;
     }
 
     .vial-tag {
       font-size: 10px;
-      padding: 2px 6px;
-      border-radius: 4px;
-      margin-left: 6px;
-      font-weight: 500;
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
     }
 
-    .vial-VIOLET { background: #e9d5ff; color: #6b21a8; }
-    .vial-RED { background: #fee2e2; color: #991b1b; }
-    .vial-GREY { background: #e2e8f0; color: #334155; }
-    .vial-BLUE { background: #dbeafe; color: #1e40af; }
-    .vial-BLACK { background: #f3f4f6; color: #111827; }
+    .vial-VIOLET { background: #f3e8ff; color: #7e22ce; border: 1px solid #e9d5ff; }
+    .vial-RED { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+    .vial-GREY { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+    .vial-BLUE { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+    .vial-BLACK { background: #e2e8f0; color: #0f172a; border: 1px solid #cbd5e1; }
+    .vial-GREEN { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+    .vial-NA { background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; }
 
-    /* Sticky Bottom Bar */
+    /* Sticky Bottom Floating Bar */
     .summary-footer {
-      position: sticky;
-      bottom: 15px;
-      background: #023e8a;
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 24px);
+      max-width: 580px;
+      background: var(--text-title);
       color: white;
-      border-radius: 12px;
-      padding: 12px 20px;
+      border-radius: var(--radius-md);
+      padding: 12px 18px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+      box-shadow: var(--shadow-lg);
+      z-index: 50;
+      backdrop-filter: blur(8px);
     }
 
     .btn-submit {
-      background: var(--primary-green);
+      background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-green-dark) 100%);
       color: white;
       border: none;
-      padding: 10px 18px;
-      border-radius: 8px;
+      padding: 11px 20px;
+      border-radius: var(--radius-sm);
       font-weight: 600;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 13.5px;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+      transition: opacity 0.2s ease;
     }
 
-    /* Professional Invoice / Screenshot View */
+    .btn-submit:active {
+      opacity: 0.9;
+      transform: scale(0.98);
+    }
+
+    /* Professional Printable Modal / Invoice */
     #receiptModal {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.6);
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(4px);
       z-index: 100;
-      padding: 15px;
+      padding: 16px;
       overflow-y: auto;
     }
 
     .receipt-card {
-      max-width: 480px;
+      max-width: 440px;
       background: white;
       margin: 20px auto;
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-      border: 1px solid #e2e8f0;
+      border-radius: var(--radius-md);
+      padding: 24px;
+      box-shadow: var(--shadow-lg);
     }
 
     .receipt-header {
       text-align: center;
-      border-bottom: 2px dashed #cbd5e1;
-      padding-bottom: 12px;
-      margin-bottom: 12px;
+      border-bottom: 2px dashed var(--border-subtle);
+      padding-bottom: 14px;
+      margin-bottom: 14px;
     }
 
     .receipt-table {
       width: 100%;
       border-collapse: collapse;
-      margin: 12px 0;
-      font-size: 13px;
+      margin: 14px 0;
+      font-size: 12.5px;
     }
 
     .receipt-table th, .receipt-table td {
-      padding: 6px 4px;
+      padding: 8px 4px;
       border-bottom: 1px solid #f1f5f9;
     }
 
     .receipt-table th {
       text-align: left;
+      font-weight: 600;
       color: var(--text-muted);
     }
 
     .receipt-total {
-      border-top: 2px solid #000;
-      font-size: 16px;
+      border-top: 2px solid var(--text-title);
+      font-size: 15px;
       font-weight: 700;
       display: flex;
       justify-content: space-between;
-      padding-top: 8px;
-      margin-top: 8px;
+      padding-top: 10px;
+      margin-top: 10px;
     }
 
     .btn-close {
       width: 100%;
-      background: #334155;
-      color: white;
-      border: none;
-      padding: 10px;
-      border-radius: 8px;
-      margin-top: 15px;
+      background: #f1f5f9;
+      color: var(--text-title);
+      border: 1px solid var(--border-subtle);
+      padding: 11px;
+      border-radius: var(--radius-sm);
+      margin-top: 16px;
       font-weight: 600;
       cursor: pointer;
     }
@@ -260,15 +370,27 @@
 <body>
 
 <div class="container">
-  <!-- Header -->
+  <!-- Header with Smart Healthcare Vector Logo -->
   <div class="header-card">
-    <img src="logo.jpg" alt="MediTree" class="logo-img" onerror="this.src='https://via.placeholder.com/180x60?text=MediTree'">
-    <p class="subtitle">Clinic & Diagnostic Centre | Home Collection</p>
+    <div class="brand-wrapper">
+      <div class="brand-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2v20M2 12h20M7 7l10 10M17 7L7 17"/>
+        </svg>
+      </div>
+      <div class="brand-name">Medi<span>Tree</span></div>
+    </div>
+    <div>
+      <span class="subtitle-badge">CLINIC & HOME COLLECTION</span>
+    </div>
   </div>
 
   <!-- Patient Details -->
   <div class="form-card">
-    <div class="section-title">📝 ৰোগীৰ বিৱৰণ (Patient Details)</div>
+    <div class="section-title">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      ৰোগীৰ বিৱৰণ (Patient Details)
+    </div>
     <div class="input-grid">
       <div class="form-group full-width">
         <label>Patient Full Name *</label>
@@ -292,41 +414,53 @@
       </div>
       <div class="form-group full-width">
         <label>Address / Collection Location *</label>
-        <textarea id="pAddress" rows="2" placeholder="নমুনা সংগ্ৰহ কৰিবলগীয়া ঠিকনা"></textarea>
+        <textarea id="pAddress" rows="2" placeholder="নমুনা সংগ্ৰহ কৰিবলগীয়া সম্পূৰ্ণ ঠিকনা"></textarea>
       </div>
     </div>
   </div>
 
   <!-- Test Selection -->
   <div class="form-card">
-    <div class="section-title">🧪 টেষ্ট বাচনি কৰক (Select Tests)</div>
-    <input type="text" id="searchTest" class="search-box" placeholder="🔍 টেষ্টৰ নাম বিচাৰক (e.g. CBC, Thyroid, KFT)..." onkeyup="filterTests()">
+    <div class="section-title">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2v17.5c0 1.4-1.1 2.5-2.5 2.5h0c-1.4 0-2.5-1.1-2.5-2.5V2"></path><path d="M8.5 2h7"></path><path d="M14.5 16h-5"></path></svg>
+      টেষ্ট বাচনি কৰক (Select Tests)
+    </div>
+    
+    <div class="search-box-wrapper">
+      <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <input type="text" id="searchTest" placeholder="টেষ্টৰ নাম বিচাৰক (e.g. CBC, Thyroid, KFT)..." onkeyup="filterTests()">
+    </div>
     
     <div class="test-list-container" id="testList"></div>
   </div>
 
-  <!-- Sticky Bottom Calculation Bar -->
+  <!-- Floating Sticky Bottom Bar -->
   <div class="summary-footer">
     <div>
-      <div style="font-size: 11px; opacity: 0.8;">Selected: <span id="selectedCount">0</span> Tests</div>
-      <div style="font-size: 18px; font-weight: 700;">Total: ₹<span id="totalDisplay">0</span></div>
+      <div style="font-size: 11px; color: #94a3b8; font-weight: 500;">Selected: <strong id="selectedCount" style="color: #38bdf8;">0</strong> Tests</div>
+      <div style="font-size: 17px; font-weight: 800; letter-spacing: -0.3px;">Total: ₹<span id="totalDisplay">0</span></div>
     </div>
-    <button class="btn-submit" onclick="generateReceipt()">Booking Receipt চাওক</button>
+    <button class="btn-submit" onclick="generateReceipt()">Booking Receipt</button>
   </div>
 </div>
 
-<!-- Receipt Modal for Employee Screenshot -->
+<!-- Receipt Modal -->
 <div id="receiptModal">
   <div class="receipt-card" id="receiptContent">
     <div class="receipt-header">
-      <h2 style="color: #0077b6; margin-bottom: 2px;">MediTree</h2>
-      <p style="font-size: 11px; color: #64748b;">YOUR HEALTH, OUR RESPONSIBILITY</p>
-      <p style="font-size: 10px; color: #94a3b8;">Near SKK Civil Hospital, Golaghat | +91-6000476108</p>
+      <div style="display: inline-flex; align-items: center; gap: 8px; justify-content: center; margin-bottom: 4px;">
+        <div style="background: #0284c7; color: white; border-radius: 6px; padding: 4px; display: flex;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 2v20M2 12h20"/></svg>
+        </div>
+        <h2 style="font-size: 18px; font-weight: 800; color: #0f172a; margin: 0;">MediTree</h2>
+      </div>
+      <p style="font-size: 10px; color: #0284c7; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase;">Your Health, Our Responsibility</p>
+      <p style="font-size: 10.5px; color: #64748b; margin-top: 3px;">Near SKK Civil Hospital, Golaghat | +91-6000476108</p>
     </div>
 
-    <div style="font-size: 12px; margin-bottom: 10px; line-height: 1.6;">
+    <div style="font-size: 12px; margin-bottom: 12px; line-height: 1.6; color: #334155;">
       <div><strong>Date:</strong> <span id="rDate"></span></div>
-      <div><strong>Patient:</strong> <span id="rName"></span> (<span id="rAgeSex"></span>)</div>
+      <div><strong>Patient:</strong> <span id="rName" style="font-weight: 600;"></span> (<span id="rAgeSex"></span>)</div>
       <div><strong>Phone:</strong> <span id="rPhone"></span></div>
       <div><strong>Address:</strong> <span id="rAddress"></span></div>
     </div>
@@ -344,11 +478,11 @@
 
     <div class="receipt-total">
       <span>Total Amount:</span>
-      <span style="color: #0077b6;">₹<span id="rTotal">0</span></span>
+      <span style="color: #0284c7;">₹<span id="rTotal">0</span></span>
     </div>
 
-    <p style="font-size: 10px; text-align: center; color: #94a3b8; margin-top: 15px;">
-      *এই স্লিপখন কৰ্মীজনে সংগ্ৰহৰ প্ৰমাণ হিচাপে Screenshot ৰাখক।
+    <p style="font-size: 10px; text-align: center; color: #94a3b8; margin-top: 14px;">
+      *এই স্লিপখন সংগ্ৰহৰ প্ৰমাণ হিচাপে Screenshot ৰাখক।
     </p>
 
     <button class="btn-close" onclick="closeModal()">Close / Edit</button>
@@ -356,7 +490,6 @@
 </div>
 
 <script>
-  // Complete 156 Tests Database from Price List
   const testsData = [
     { name: "ABO, Rh GROUPING", price: 100, vial: "VIOLET" },
     { name: "ABSOLUTE EOSINOPHIL COUNT", price: 150, vial: "VIOLET" },
@@ -521,15 +654,17 @@
   function renderTests(list) {
     const container = document.getElementById('testList');
     container.innerHTML = '';
-    list.forEach((t, index) => {
+    list.forEach((t) => {
       const isChecked = selectedTests.some(item => item.name === t.name);
       const div = document.createElement('div');
       div.className = 'test-item';
       div.innerHTML = `
-        <label style="display:flex; align-items:center; cursor:pointer; width:70%;">
+        <label style="display:flex; align-items:center; cursor:pointer; flex: 1; min-width: 0;">
           <input type="checkbox" onchange="toggleTest('${t.name.replace(/'/g, "\\'")}', ${t.price}, '${t.vial}')" ${isChecked ? 'checked' : ''}>
-          <span>${t.name}</span>
-          <span class="vial-tag vial-${t.vial}">${t.vial}</span>
+          <div class="test-title-group">
+            <span style="font-weight: 500;">${t.name}</span>
+            <span class="vial-tag vial-${t.vial}">${t.vial}</span>
+          </div>
         </label>
         <span class="test-price">₹${t.price}</span>
       `;
@@ -571,9 +706,9 @@
       return;
     }
 
-    document.getElementById('rDate').innerText = new Date().toLocaleString();
+    document.getElementById('rDate').innerText = new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
     document.getElementById('rName').innerText = name;
-    document.getElementById('rAgeSex').innerText = `${age} Y / ${sex}`;
+    document.getElementById('rAgeSex').innerText = `${age ? age + ' Y' : ''} / ${sex}`;
     document.getElementById('rPhone').innerText = phone;
     document.getElementById('rAddress').innerText = address || 'N/A';
 
@@ -584,7 +719,7 @@
         <tr>
           <td>${t.name}</td>
           <td><span class="vial-tag vial-${t.vial}">${t.vial}</span></td>
-          <td style="text-align: right; font-weight: 600;">₹${t.price}</td>
+          <td style="text-align: right; font-weight: 700; color: #0284c7;">₹${t.price}</td>
         </tr>
       `;
     });
@@ -598,7 +733,6 @@
     document.getElementById('receiptModal').style.display = 'none';
   }
 
-  // Initial load
   renderTests(testsData);
 </script>
 
