@@ -1141,8 +1141,8 @@ _Near SKK Civil Hospital, Golaghat_`;
       }
     }
 
-    const clinicNumber = "916000476108";
-    const waUrl = `https://wa.me/${clinicNumber}?text=${encodeURIComponent(formattedMessage)}`;
+    // Opens WhatsApp contact selector directly without a pre-set number
+    const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(formattedMessage)}`;
     window.open(waUrl, '_blank');
   }
 
