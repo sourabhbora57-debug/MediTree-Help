@@ -164,6 +164,12 @@
       box-shadow: 0 0 0 3px rgba(0, 119, 182, 0.12);
     }
 
+    .collection-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
     /* Prescription Upload Box */
     .upload-zone {
       border: 2px dashed #cbd5e1;
@@ -596,15 +602,20 @@
         <textarea id="pAddress" rows="2" placeholder="নমুনা সংগ্ৰহ কৰিবলগীয়া সম্পূৰ্ণ ঠিকনা ও Landmark"></textarea>
       </div>
 
-      <!-- Collection Charge Selector -->
+      <!-- Collection Charge Selector & Custom Input -->
       <div class="form-group full-width">
         <label>Home Collection Charge (সংগ্ৰহ মাচুল) *</label>
-        <select id="pCollectionCharge" onchange="updateTotal()">
-          <option value="0">Free / Clinic Sample (₹0)</option>
-          <option value="50">Within Town / Local Area (₹50)</option>
-          <option value="100" selected>Standard Home Collection (₹100)</option>
-          <option value="150">Outskirts / Long Distance (₹150)</option>
-        </select>
+        <div class="collection-row">
+          <select id="pCollectionCharge" onchange="handleCollectionChargeChange()">
+            <option value="0">Free / Clinic Sample (₹0)</option>
+            <option value="50">Local / Town Area (₹50)</option>
+            <option value="100" selected>Standard Home Collection (₹100)</option>
+            <option value="150">Outskirts Area (₹150)</option>
+            <option value="200">Long Distance (₹200)</option>
+            <option value="custom">Custom Amount (নিজে মাচুল লিখক)...</option>
+          </select>
+          <input type="number" id="pCustomCharge" placeholder="মাচুলৰ পৰিমাণ দিয়ক (₹)" style="display: none;" oninput="updateTotal()" min="0" value="100">
+        </div>
       </div>
     </div>
   </div>
@@ -959,8 +970,11 @@
   }
 
   function filterTests() {
-    const q = document.getElementById('searchTest').value.toLowerCase();
-    const filtered = testsData.filter(t => t.name.toLowerCase().includes(q));
+    const queryWords = document.getElementById('searchTest').value.toLowerCase().trim().split(/\s+/);
+    const filtered = testsData.filter(t => {
+      const testName = t.name.toLowerCase();
+      return queryWords.every(word => testName.includes(word));
+    });
     renderTests(filtered);
   }
 
@@ -974,9 +988,30 @@
     updateTotal();
   }
 
+  function getActiveCollectionCharge() {
+    const selectVal = document.getElementById('pCollectionCharge').value;
+    if (selectVal === 'custom') {
+      const customVal = parseInt(document.getElementById('pCustomCharge').value, 10);
+      return isNaN(customVal) || customVal < 0 ? 0 : customVal;
+    }
+    return parseInt(selectVal, 10) || 0;
+  }
+
+  function handleCollectionChargeChange() {
+    const selectVal = document.getElementById('pCollectionCharge').value;
+    const customInput = document.getElementById('pCustomCharge');
+    if (selectVal === 'custom') {
+      customInput.style.display = 'block';
+      customInput.focus();
+    } else {
+      customInput.style.display = 'none';
+    }
+    updateTotal();
+  }
+
   function updateTotal() {
     const testsSubtotal = selectedTests.reduce((acc, curr) => acc + curr.price, 0);
-    const collectionCharge = parseInt(document.getElementById('pCollectionCharge').value, 10) || 0;
+    const collectionCharge = getActiveCollectionCharge();
     const grandTotal = testsSubtotal + collectionCharge;
 
     document.getElementById('totalDisplay').innerText = grandTotal;
@@ -991,7 +1026,7 @@
     const doctor = document.getElementById('pDoctor').value.trim() || 'Self';
     const phone = document.getElementById('pPhone').value.trim();
     const address = document.getElementById('pAddress').value.trim();
-    const collectionCharge = parseInt(document.getElementById('pCollectionCharge').value, 10) || 0;
+    const collectionCharge = getActiveCollectionCharge();
 
     if (!name) {
       alert("অনুগ্ৰহ কৰি Patient Name প্ৰদান কৰক!");
@@ -1115,10 +1150,13 @@ _Near SKK Civil Hospital, Golaghat_`;
     if (confirm("সকলো তথ্য মচি নতুন Booking আৰম্ভ কৰিব নেকি?")) {
       document.getElementById('pName').value = '';
       document.getElementById('pAge').value = '';
+      document.getElementById('pSex').value = 'Male';
       document.getElementById('pDoctor').value = 'Self';
       document.getElementById('pPhone').value = '';
       document.getElementById('pAddress').value = '';
       document.getElementById('pCollectionCharge').value = '100';
+      document.getElementById('pCustomCharge').value = '100';
+      document.getElementById('pCustomCharge').style.display = 'none';
       document.getElementById('searchTest').value = '';
       removePrescription();
       selectedTests = [];
