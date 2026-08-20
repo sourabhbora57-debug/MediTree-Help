@@ -435,7 +435,7 @@
     .receipt-table {
       width: 100%;
       border-collapse: collapse;
-      margin: 14px 0;
+      margin: 14px 0 8px 0;
       font-size: 12.5px;
     }
 
@@ -452,14 +452,22 @@
       text-transform: uppercase;
     }
 
+    .receipt-total-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--text-sub);
+      padding: 4px 0;
+    }
+
     .receipt-total {
       border-top: 2px solid var(--text-main);
-      font-size: 15px;
+      font-size: 15.5px;
       font-weight: 800;
       display: flex;
       justify-content: space-between;
-      padding-top: 10px;
-      margin-top: 10px;
+      padding-top: 8px;
+      margin-top: 6px;
     }
 
     .prescription-status-box {
@@ -587,6 +595,17 @@
         <label>Sample Collection Address / Location *</label>
         <textarea id="pAddress" rows="2" placeholder="নমুনা সংগ্ৰহ কৰিবলগীয়া সম্পূৰ্ণ ঠিকনা ও Landmark"></textarea>
       </div>
+
+      <!-- Collection Charge Selector -->
+      <div class="form-group full-width">
+        <label>Home Collection Charge (সংগ্ৰহ মাচুল) *</label>
+        <select id="pCollectionCharge" onchange="updateTotal()">
+          <option value="0">Free / Clinic Sample (₹0)</option>
+          <option value="50">Within Town / Local Area (₹50)</option>
+          <option value="100" selected>Standard Home Collection (₹100)</option>
+          <option value="150">Outskirts / Long Distance (₹150)</option>
+        </select>
+      </div>
     </div>
   </div>
 
@@ -637,8 +656,11 @@
   <!-- Floating Footer Summary -->
   <div class="summary-footer">
     <div>
-      <div style="font-size: 11px; color: #94a3b8; font-weight: 500;">Selected: <strong id="selectedCount" style="color: #38bdf8;">0</strong> Tests</div>
-      <div style="font-size: 17px; font-weight: 800;">Total: ₹<span id="totalDisplay">0</span></div>
+      <div style="font-size: 11px; color: #94a3b8; font-weight: 500;">
+        Selected: <strong id="selectedCount" style="color: #38bdf8;">0</strong> Tests 
+        <span id="footerChargeBadge" style="color: #cbd5e1; font-size: 10.5px;">(+ ₹100 Col.)</span>
+      </div>
+      <div style="font-size: 17px; font-weight: 800;">Total: ₹<span id="totalDisplay">100</span></div>
     </div>
     <button class="btn-submit" onclick="generateReceipt()">Booking Receipt</button>
   </div>
@@ -682,6 +704,18 @@
       </thead>
       <tbody id="rTestTableBody"></tbody>
     </table>
+
+    <!-- Amount Summary Breakdown -->
+    <div style="margin-top: 6px; border-top: 1px dashed var(--border); padding-top: 8px;">
+      <div class="receipt-total-row">
+        <span>Tests Subtotal:</span>
+        <span>₹<span id="rSubTotal">0</span></span>
+      </div>
+      <div class="receipt-total-row">
+        <span>Collection Charge:</span>
+        <span>₹<span id="rCollectionCharge">0</span></span>
+      </div>
+    </div>
 
     <div class="receipt-total">
       <span>Grand Total:</span>
@@ -941,9 +975,13 @@
   }
 
   function updateTotal() {
-    const total = selectedTests.reduce((acc, curr) => acc + curr.price, 0);
-    document.getElementById('totalDisplay').innerText = total;
+    const testsSubtotal = selectedTests.reduce((acc, curr) => acc + curr.price, 0);
+    const collectionCharge = parseInt(document.getElementById('pCollectionCharge').value, 10) || 0;
+    const grandTotal = testsSubtotal + collectionCharge;
+
+    document.getElementById('totalDisplay').innerText = grandTotal;
     document.getElementById('selectedCount').innerText = selectedTests.length;
+    document.getElementById('footerChargeBadge').innerText = `(+ ₹${collectionCharge} Col.)`;
   }
 
   function generateReceipt() {
@@ -953,6 +991,7 @@
     const doctor = document.getElementById('pDoctor').value.trim() || 'Self';
     const phone = document.getElementById('pPhone').value.trim();
     const address = document.getElementById('pAddress').value.trim();
+    const collectionCharge = parseInt(document.getElementById('pCollectionCharge').value, 10) || 0;
 
     if (!name) {
       alert("অনুগ্ৰহ কৰি Patient Name প্ৰদান কৰক!");
@@ -1005,8 +1044,12 @@
       });
     }
 
-    const total = selectedTests.reduce((acc, curr) => acc + curr.price, 0);
-    document.getElementById('rTotal').innerText = total;
+    const testsSubtotal = selectedTests.reduce((acc, curr) => acc + curr.price, 0);
+    const grandTotal = testsSubtotal + collectionCharge;
+
+    document.getElementById('rSubTotal').innerText = testsSubtotal;
+    document.getElementById('rCollectionCharge').innerText = collectionCharge;
+    document.getElementById('rTotal').innerText = grandTotal;
     document.getElementById('receiptModal').style.display = 'block';
   }
 
@@ -1017,7 +1060,9 @@
     const phone = document.getElementById('rPhone').innerText;
     const address = document.getElementById('rAddress').innerText;
     const date = document.getElementById('rDate').innerText;
-    const total = document.getElementById('rTotal').innerText;
+    const subTotal = document.getElementById('rSubTotal').innerText;
+    const collectionCharge = document.getElementById('rCollectionCharge').innerText;
+    const grandTotal = document.getElementById('rTotal').innerText;
 
     let testListText = selectedTests.length > 0 
       ? selectedTests.map((t, index) => `${index + 1}. ${t.name} [${t.vial}] - ₹${t.price}`).join('\n')
@@ -1040,12 +1085,14 @@ ${prescriptionText}
 🧪 *Selected Tests (${selectedTests.length}):*
 ${testListText}
 
-💰 *Total Amount:* ₹${total}
+━━━━━━━━━━━━━━━━━━━━━━━━━
+💵 *Tests Subtotal:* ₹${subTotal}
+🛵 *Collection Charge:* ₹${collectionCharge}
+💰 *Grand Total:* ₹${grandTotal}
 ═════════════════════════
 _Your Health, Our Responsibility._
 _Near SKK Civil Hospital, Golaghat_`;
 
-    // Check if Web Share API with file support is available
     if (uploadedPrescriptionFile && navigator.canShare && navigator.canShare({ files: [uploadedPrescriptionFile] })) {
       try {
         await navigator.share({
@@ -1059,7 +1106,6 @@ _Near SKK Civil Hospital, Golaghat_`;
       }
     }
 
-    // Direct WhatsApp Web / App intent fallback
     const clinicNumber = "916000476108";
     const waUrl = `https://wa.me/${clinicNumber}?text=${encodeURIComponent(formattedMessage)}`;
     window.open(waUrl, '_blank');
@@ -1072,6 +1118,7 @@ _Near SKK Civil Hospital, Golaghat_`;
       document.getElementById('pDoctor').value = 'Self';
       document.getElementById('pPhone').value = '';
       document.getElementById('pAddress').value = '';
+      document.getElementById('pCollectionCharge').value = '100';
       document.getElementById('searchTest').value = '';
       removePrescription();
       selectedTests = [];
@@ -1085,8 +1132,9 @@ _Near SKK Civil Hospital, Golaghat_`;
     document.getElementById('receiptModal').style.display = 'none';
   }
 
-  // Initial render
+  // Initial render & total calculation
   renderTests(testsData);
+  updateTotal();
 </script>
 
 </body>
