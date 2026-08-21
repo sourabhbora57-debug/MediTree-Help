@@ -107,7 +107,7 @@
       margin-top: 10px;
     }
 
-    /* Premium Form Cards */
+    /* Form Cards */
     .premium-card {
       background: var(--surface);
       border-radius: var(--radius-md);
@@ -602,16 +602,20 @@
         <textarea id="pAddress" rows="2" placeholder="নমুনা সংগ্ৰহ কৰিবলগীয়া সম্পূৰ্ণ ঠিকনা ও Landmark"></textarea>
       </div>
 
-      <!-- Payment Mode Selector -->
-      <div class="form-group full-width">
-        <label>Payment Mode / Status (পৰিশোধৰ মাধ্যম) *</label>
+      <!-- Payment Mode Selector (Only Not Paid, UPI, Cash) -->
+      <div class="form-group">
+        <label>Payment Option (পৰিশোধৰ মাধ্যম) *</label>
         <select id="pPaymentMode">
-          <option value="Pay on Collection (Cash/UPI)">Due / Pay on Collection (সংগ্ৰহৰ সময়ত দিব)</option>
-          <option value="Paid via UPI (GooglePay / PhonePe / Paytm)">Paid via UPI (GooglePay / PhonePe / Paytm)</option>
-          <option value="Paid in Cash">Paid in Cash (নগদ পৰিশোধিত)</option>
-          <option value="Paid by Card">Paid by Card (কাৰ্ড যোগে পৰিশোধিত)</option>
-          <option value="Paid by Cheque">Paid by Cheque (চেক যোগে পৰিশোধিত)</option>
+          <option value="Not Paid">Not Paid (বকেয়া / পাছত দিব)</option>
+          <option value="UPI">UPI (GooglePay / PhonePe / Paytm)</option>
+          <option value="Cash">Cash (নগদ)</option>
         </select>
+      </div>
+
+      <!-- Discount Input (%) -->
+      <div class="form-group">
+        <label>Discount % (ৰেহাই শতাংশ)</label>
+        <input type="number" id="pDiscount" min="0" max="100" placeholder="0" value="0" oninput="updateTotal()">
       </div>
 
       <!-- Collection Charge Selector & Custom Input -->
@@ -709,7 +713,7 @@
       <div style="grid-column: span 2;"><strong>Patient:</strong> <span id="rName" style="font-weight: 700;"></span> (<span id="rAgeSex"></span>)</div>
       <div style="grid-column: span 2;"><strong>Phone:</strong> <span id="rPhone"></span></div>
       <div style="grid-column: span 2;"><strong>Location:</strong> <span id="rAddress"></span></div>
-      <div style="grid-column: span 2;"><strong>Payment Mode:</strong> <span id="rPaymentMode" style="font-weight: 700; color: #023e8a;"></span></div>
+      <div style="grid-column: span 2;"><strong>Payment Status:</strong> <span id="rPaymentMode" style="font-weight: 700; color: #023e8a;"></span></div>
     </div>
 
     <!-- Prescription Attachment Badge in Receipt -->
@@ -735,6 +739,10 @@
       <div class="receipt-total-row">
         <span>Tests Subtotal:</span>
         <span>₹<span id="rSubTotal">0</span></span>
+      </div>
+      <div class="receipt-total-row" id="rDiscountRow" style="color: #10b981;">
+        <span>Discount (<span id="rDiscountPercent">0</span>%):</span>
+        <span>- ₹<span id="rDiscountAmount">0</span></span>
       </div>
       <div class="receipt-total-row">
         <span>Collection Charge:</span>
@@ -1027,7 +1035,13 @@
   function updateTotal() {
     const testsSubtotal = selectedTests.reduce((acc, curr) => acc + curr.price, 0);
     const collectionCharge = getActiveCollectionCharge();
-    const grandTotal = testsSubtotal + collectionCharge;
+    
+    let discountPercent = parseFloat(document.getElementById('pDiscount').value) || 0;
+    if (discountPercent < 0) discountPercent = 0;
+    if (discountPercent > 100) discountPercent = 100;
+
+    const discountAmount = Math.round((testsSubtotal * discountPercent) / 100);
+    const grandTotal = Math.max(0, (testsSubtotal - discountAmount) + collectionCharge);
 
     document.getElementById('totalDisplay').innerText = grandTotal;
     document.getElementById('selectedCount').innerText = selectedTests.length;
@@ -1043,6 +1057,10 @@
     const address = document.getElementById('pAddress').value.trim();
     const paymentMode = document.getElementById('pPaymentMode').value;
     const collectionCharge = getActiveCollectionCharge();
+
+    let discountPercent = parseFloat(document.getElementById('pDiscount').value) || 0;
+    if (discountPercent < 0) discountPercent = 0;
+    if (discountPercent > 100) discountPercent = 100;
 
     if (!name) {
       alert("অনুগ্ৰহ কৰি Patient Name প্ৰদান কৰক!");
@@ -1097,9 +1115,21 @@
     }
 
     const testsSubtotal = selectedTests.reduce((acc, curr) => acc + curr.price, 0);
-    const grandTotal = testsSubtotal + collectionCharge;
+    const discountAmount = Math.round((testsSubtotal * discountPercent) / 100);
+    const grandTotal = Math.max(0, (testsSubtotal - discountAmount) + collectionCharge);
 
     document.getElementById('rSubTotal').innerText = testsSubtotal;
+    
+    // Manage Discount row display
+    const discountRow = document.getElementById('rDiscountRow');
+    if (discountPercent > 0) {
+      discountRow.style.display = 'flex';
+      document.getElementById('rDiscountPercent').innerText = discountPercent;
+      document.getElementById('rDiscountAmount').innerText = discountAmount;
+    } else {
+      discountRow.style.display = 'none';
+    }
+
     document.getElementById('rCollectionCharge').innerText = collectionCharge;
     document.getElementById('rTotal').innerText = grandTotal;
     document.getElementById('receiptModal').style.display = 'block';
@@ -1117,6 +1147,10 @@
     const collectionCharge = document.getElementById('rCollectionCharge').innerText;
     const grandTotal = document.getElementById('rTotal').innerText;
 
+    let discountPercent = parseFloat(document.getElementById('pDiscount').value) || 0;
+    const testsSubtotal = selectedTests.reduce((acc, curr) => acc + curr.price, 0);
+    const discountAmount = Math.round((testsSubtotal * discountPercent) / 100);
+
     let testListText = selectedTests.length > 0 
       ? selectedTests.map((t, index) => `${index + 1}. ${t.name} [${t.vial}] - ₹${t.price}`).join('\n')
       : "• (Prescription-based tests to be verified by laboratory)";
@@ -1124,6 +1158,8 @@
     let prescriptionText = uploadedPrescriptionFile 
       ? `📄 *Prescription:* Attached (${uploadedPrescriptionFile.name})`
       : `📄 *Prescription:* None / Direct selection`;
+
+    let discountText = discountPercent > 0 ? `\n🏷️ *Discount (${discountPercent}%):* - ₹${discountAmount}` : '';
 
     const formattedMessage = `🏥 *MEDITREE CLINIC & DIAGNOSTIC CENTRE LLP*
 _Home Sample Collection Booking_
@@ -1140,7 +1176,7 @@ ${prescriptionText}
 ${testListText}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━
-💵 *Tests Subtotal:* ₹${subTotal}
+💵 *Tests Subtotal:* ₹${subTotal}${discountText}
 🛵 *Collection Charge:* ₹${collectionCharge}
 💰 *Grand Total:* ₹${grandTotal}
 ═════════════════════════
@@ -1167,6 +1203,7 @@ _Your Health, Our Responsibility._
       document.getElementById('pPhone').value = '';
       document.getElementById('pAddress').value = '';
       document.getElementById('pPaymentMode').selectedIndex = 0;
+      document.getElementById('pDiscount').value = '0';
       document.getElementById('pCollectionCharge').value = '100';
       document.getElementById('pCustomCharge').value = '100';
       document.getElementById('pCustomCharge').style.display = 'none';
