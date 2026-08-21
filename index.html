@@ -314,6 +314,7 @@
       font-size: 13px;
       transition: background 0.15s;
       user-select: none;
+      -webkit-user-select: none;
     }
 
     .test-item:last-child {
@@ -684,10 +685,10 @@
     
     <div class="search-box-wrapper">
       <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-      <input type="text" id="searchTest" placeholder="টেষ্টৰ নাম বিচাৰক (e.g. Full Body, CBC, Thyroid)..." oninput="filterTests()">
+      <input type="text" id="searchTest" placeholder="টেষ্টৰ নাম বিচাৰক (e.g. Full Body, CBC, Thyroid)..." oninput="filterTests()" autocomplete="off" autocorrect="off">
     </div>
     
-    <!-- Test List Box with fluid touch scrolling -->
+    <!-- Test List Box with fluid touch scrolling and keyboard stay -->
     <div class="test-list-container" id="testList"></div>
   </div>
 
@@ -1008,12 +1009,55 @@
     });
   }
 
-  // Click delegation without blocking scroll gestures
+  // --- SMART TOUCH GESTURE: SCROLLING + KEYBOARD PERSISTENCE ---
   const listContainer = document.getElementById('testList');
-  listContainer.addEventListener('click', function(e) {
+  const searchInput = document.getElementById('searchTest');
+
+  let touchStartY = 0;
+  let touchStartX = 0;
+  let isScrolling = false;
+
+  listContainer.addEventListener('touchstart', function(e) {
+    touchStartY = e.touches[0].clientY;
+    touchStartX = e.touches[0].clientX;
+    isScrolling = false;
+  }, { passive: true });
+
+  listContainer.addEventListener('touchmove', function(e) {
+    const diffY = Math.abs(e.touches[0].clientY - touchStartY);
+    const diffX = Math.abs(e.touches[0].clientX - touchStartX);
+    if (diffY > 8 || diffX > 8) {
+      isScrolling = true; // User is scrolling, not tapping
+    }
+  }, { passive: true });
+
+  listContainer.addEventListener('touchend', function(e) {
+    if (isScrolling) return; // Ignore if user was scrolling
+
     const item = e.target.closest('.test-item');
     if (item) {
+      // Prevent focus stealing from search input
+      e.preventDefault();
       toggleItem(item);
+
+      // Keep focus on input without dismissing mobile keyboard
+      if (document.activeElement === searchInput || searchInput.value.length > 0) {
+        searchInput.focus({ preventScroll: true });
+        searchInput.select();
+      }
+    }
+  });
+
+  // Desktop Mouse Click
+  listContainer.addEventListener('mousedown', function(e) {
+    const item = e.target.closest('.test-item');
+    if (item) {
+      e.preventDefault(); // Prevents input blur on desktop
+      toggleItem(item);
+      if (document.activeElement === searchInput || searchInput.value.length > 0) {
+        searchInput.focus();
+        searchInput.select();
+      }
     }
   });
 
