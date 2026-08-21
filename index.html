@@ -615,11 +615,11 @@
 
       <!-- Payment Mode Selector -->
       <div class="form-group">
-        <label>Payment Option (পৰিশোধৰ মাধ্যম) *</label>
+        <label>Payment Option *</label>
         <select id="pPaymentMode">
-          <option value="Not Paid">Not Paid (বকেয়া / পাছত দিব)</option>
-          <option value="UPI">UPI (GooglePay / PhonePe / Paytm)</option>
-          <option value="Cash">Cash (নগদ)</option>
+          <option value="Not Paid">Not Paid</option>
+          <option value="UPI">UPI</option>
+          <option value="Cash">Cash</option>
         </select>
       </div>
 
@@ -688,7 +688,7 @@
       <input type="text" id="searchTest" placeholder="টেষ্টৰ নাম বিচাৰক (e.g. Full Body, CBC, Thyroid)..." oninput="filterTests()" autocomplete="off" autocorrect="off">
     </div>
     
-    <!-- Test List Box with fluid touch scrolling and keyboard stay -->
+    <!-- Test List Box -->
     <div class="test-list-container" id="testList"></div>
   </div>
 
@@ -1009,7 +1009,7 @@
     });
   }
 
-  // --- SMART TOUCH GESTURE: SCROLLING + KEYBOARD PERSISTENCE ---
+  // Touch gesture & scrolling support
   const listContainer = document.getElementById('testList');
   const searchInput = document.getElementById('searchTest');
 
@@ -1027,20 +1027,18 @@
     const diffY = Math.abs(e.touches[0].clientY - touchStartY);
     const diffX = Math.abs(e.touches[0].clientX - touchStartX);
     if (diffY > 8 || diffX > 8) {
-      isScrolling = true; // User is scrolling, not tapping
+      isScrolling = true;
     }
   }, { passive: true });
 
   listContainer.addEventListener('touchend', function(e) {
-    if (isScrolling) return; // Ignore if user was scrolling
+    if (isScrolling) return;
 
     const item = e.target.closest('.test-item');
     if (item) {
-      // Prevent focus stealing from search input
       e.preventDefault();
       toggleItem(item);
 
-      // Keep focus on input without dismissing mobile keyboard
       if (document.activeElement === searchInput || searchInput.value.length > 0) {
         searchInput.focus({ preventScroll: true });
         searchInput.select();
@@ -1048,11 +1046,11 @@
     }
   });
 
-  // Desktop Mouse Click
+  // Desktop click
   listContainer.addEventListener('mousedown', function(e) {
     const item = e.target.closest('.test-item');
     if (item) {
-      e.preventDefault(); // Prevents input blur on desktop
+      e.preventDefault();
       toggleItem(item);
       if (document.activeElement === searchInput || searchInput.value.length > 0) {
         searchInput.focus();
