@@ -658,7 +658,7 @@
     
     <div class="search-box-wrapper">
       <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-      <input type="text" id="searchTest" placeholder="টেষ্টৰ নাম বিচাৰক (e.g. CBC, KFT, Thyroid, Lipid)..." onkeyup="filterTests()">
+      <input type="text" id="searchTest" placeholder="টেষ্টৰ নাম বিচাৰক (e.g. Full Body, CBC, Thyroid)..." onkeyup="filterTests()">
     </div>
     
     <div class="test-list-container" id="testList"></div>
@@ -752,6 +752,7 @@
 
 <script>
   const testsData = [
+    { name: "FULL BODY / WHOLE BODY CHECKUP", price: 3500, vial: "RED, VIOLET, GREY, BLACK, URINE" },
     { name: "ABO, Rh GROUPING", price: 100, vial: "VIOLET" },
     { name: "ABSOLUTE EOSINOPHIL COUNT", price: 150, vial: "VIOLET" },
     { name: "ABSOLUTE LYMPHOCYTE COUNT", price: 150, vial: "VIOLET" },
@@ -1130,7 +1131,6 @@ _Near SKK Civil Hospital, Golaghat_`;
 
     const encodedText = encodeURIComponent(formattedMessage);
     
-    // Direct open to WhatsApp contact selector
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     if (isMobile) {
       window.location.href = `whatsapp://send?text=${encodedText}`;
@@ -1163,7 +1163,6 @@ _Near SKK Civil Hospital, Golaghat_`;
     document.getElementById('receiptModal').style.display = 'none';
   }
 
-  // Initial render & total calculation
   renderTests(testsData);
   updateTotal();
 </script>
