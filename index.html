@@ -476,17 +476,6 @@
       margin-top: 6px;
     }
 
-    .payment-tag {
-      display: inline-block;
-      padding: 3px 8px;
-      border-radius: 6px;
-      font-weight: 700;
-      font-size: 11px;
-    }
-
-    .pay-paid { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
-    .pay-pending { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
-
     .prescription-status-box {
       background: #eff6ff;
       border: 1px solid #bfdbfe;
@@ -613,7 +602,7 @@
         <textarea id="pAddress" rows="2" placeholder="নমুনা সংগ্ৰহ কৰিবলগীয়া সম্পূৰ্ণ ঠিকনা ও Landmark"></textarea>
       </div>
 
-      <!-- Payment Mode Selector (Optional / Customizable) -->
+      <!-- Payment Mode Selector -->
       <div class="form-group full-width">
         <label>Payment Mode / Status (পৰিশোধৰ মাধ্যম) *</label>
         <select id="pPaymentMode">
@@ -709,7 +698,8 @@
       </div>
       <div style="font-size: 11px; font-weight: 700; color: #023e8a; text-transform: uppercase;">Clinic And Diagnostic Centre LLP</div>
       <p style="font-size: 10px; color: #10b981; font-weight: 700; letter-spacing: 0.5px; margin-top: 3px;">YOUR HEALTH, OUR RESPONSIBILITY</p>
-      <p style="font-size: 10px; color: #64748b; margin-top: 2px;">Near SKK Civil Hospital, Golaghat</p>
+      <p style="font-size: 10.5px; color: #64748b; margin-top: 2px;">Near SKK Civil Hospital, Golaghat</p>
+      <p style="font-size: 11px; color: #0077b6; font-weight: 700; margin-top: 2px;">📞 Contact: 6000476108 / 9101464141</p>
     </div>
 
     <!-- Structured Info Grid -->
@@ -1155,7 +1145,8 @@ ${testListText}
 💰 *Grand Total:* ₹${grandTotal}
 ═════════════════════════
 _Your Health, Our Responsibility._
-_Near SKK Civil Hospital, Golaghat_`;
+📍 _Near SKK Civil Hospital, Golaghat_
+📞 _Helpdesk: 6000476108 / 9101464141_`;
 
     const encodedText = encodeURIComponent(formattedMessage);
     
