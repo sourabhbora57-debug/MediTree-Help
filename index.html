@@ -613,6 +613,17 @@
         <textarea id="pAddress" rows="2" placeholder="নমুনা সংগ্ৰহ কৰিবলগীয়া সম্পূৰ্ণ ঠিকনা ও Landmark"></textarea>
       </div>
 
+      <!-- Report Delivery Mode Selector (Without Email) -->
+      <div class="form-group full-width">
+        <label>Report Delivery Option (ৰিপৰ্ট কেনেকৈ ল'ব?)</label>
+        <select id="pReportMode">
+          <option value="PDF Send (WhatsApp)">📄 Report PDF Send (WhatsApp)</option>
+          <option value="Hardcopy Send (Home Delivery)">📦 Report Hardcopy Send (Home Delivery)</option>
+          <option value="PDF & Hardcopy Both Send">📄+📦 Report PDF & Hardcopy Send</option>
+          <option value="Self Collection (From Centre)">🏥 Self Collect from Clinic (প্ৰয়োজন নাই)</option>
+        </select>
+      </div>
+
       <!-- Payment Mode Selector -->
       <div class="form-group">
         <label>Payment Option *</label>
@@ -725,6 +736,7 @@
       <div style="grid-column: span 2;"><strong>Patient:</strong> <span id="rName" style="font-weight: 700;"></span> (<span id="rAgeSex"></span>)</div>
       <div style="grid-column: span 2;"><strong>Phone:</strong> <span id="rPhone"></span></div>
       <div style="grid-column: span 2;"><strong>Location:</strong> <span id="rAddress"></span></div>
+      <div style="grid-column: span 2;"><strong>Report Delivery:</strong> <span id="rReportMode" style="font-weight: 700; color: #059669;"></span></div>
       <div style="grid-column: span 2;"><strong>Payment Status:</strong> <span id="rPaymentMode" style="font-weight: 700; color: #023e8a;"></span></div>
     </div>
 
@@ -1009,7 +1021,6 @@
     });
   }
 
-  // Touch gesture & scrolling support
   const listContainer = document.getElementById('testList');
   const searchInput = document.getElementById('searchTest');
 
@@ -1046,7 +1057,6 @@
     }
   });
 
-  // Desktop click
   listContainer.addEventListener('mousedown', function(e) {
     const item = e.target.closest('.test-item');
     if (item) {
@@ -1136,6 +1146,7 @@
     const doctor = document.getElementById('pDoctor').value.trim() || 'Self';
     const phone = document.getElementById('pPhone').value.trim();
     const address = document.getElementById('pAddress').value.trim();
+    const reportMode = document.getElementById('pReportMode').value;
     const paymentMode = document.getElementById('pPaymentMode').value;
     const collectionCharge = getActiveCollectionCharge();
 
@@ -1162,6 +1173,7 @@
     document.getElementById('rDoctor').innerText = doctor;
     document.getElementById('rPhone').innerText = phone;
     document.getElementById('rAddress').innerText = address || 'N/A';
+    document.getElementById('rReportMode').innerText = reportMode;
     document.getElementById('rPaymentMode').innerText = paymentMode;
 
     const pNotice = document.getElementById('rPrescriptionNotice');
@@ -1221,6 +1233,7 @@
     const doctor = document.getElementById('rDoctor').innerText;
     const phone = document.getElementById('rPhone').innerText;
     const address = document.getElementById('rAddress').innerText;
+    const reportMode = document.getElementById('rReportMode').innerText;
     const paymentMode = document.getElementById('rPaymentMode').innerText;
     const date = document.getElementById('rDate').innerText;
     const subTotal = document.getElementById('rSubTotal').innerText;
@@ -1249,6 +1262,7 @@ _Home Sample Collection Booking_
 👤 *Patient:* ${name} (${ageSex})
 📞 *Phone:* ${phone}
 📍 *Address:* ${address}
+🚚 *Report Delivery:* ${reportMode}
 💳 *Payment Status:* ${paymentMode}
 ${prescriptionText}
 
@@ -1282,6 +1296,7 @@ _Your Health, Our Responsibility._
       document.getElementById('pDoctor').value = 'Self';
       document.getElementById('pPhone').value = '';
       document.getElementById('pAddress').value = '';
+      document.getElementById('pReportMode').selectedIndex = 0;
       document.getElementById('pPaymentMode').selectedIndex = 0;
       document.getElementById('pDiscount').value = '0';
       document.getElementById('pCollectionCharge').value = '100';
