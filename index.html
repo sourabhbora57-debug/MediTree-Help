@@ -8,6 +8,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   
+  <!-- html2pdf Library for Direct PDF Download -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
   <style>
     :root {
       --primary: #0077b6;
@@ -242,11 +245,6 @@
       overflow: hidden;
       text-overflow: ellipsis;
       max-width: 200px;
-    }
-
-    .preview-size {
-      font-size: 11px;
-      color: var(--text-muted);
     }
 
     .btn-remove-file {
@@ -524,7 +522,24 @@
       box-shadow: 0 4px 12px rgba(37, 211, 102, 0.28);
     }
 
-    .btn-whatsapp:active {
+    .btn-pdf {
+      width: 100%;
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      color: #ffffff;
+      border: none;
+      padding: 11px;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: 13.5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+    }
+
+    .btn-whatsapp:active, .btn-pdf:active {
       opacity: 0.92;
     }
 
@@ -613,7 +628,7 @@
         <textarea id="pAddress" rows="2" placeholder="নমুনা সংগ্ৰহ কৰিবলগীয়া সম্পূৰ্ণ ঠিকনা ও Landmark"></textarea>
       </div>
 
-      <!-- Report Delivery Mode Selector (Without Email) -->
+      <!-- Report Delivery Mode Selector -->
       <div class="form-group full-width">
         <label>Report Delivery Option (ৰিপৰ্ট কেনেকৈ ল'ব?)</label>
         <select id="pReportMode">
@@ -625,13 +640,39 @@
       </div>
 
       <!-- Payment Mode Selector -->
-      <div class="form-group">
-        <label>Payment Option *</label>
-        <select id="pPaymentMode">
-          <option value="Not Paid">Not Paid</option>
-          <option value="UPI">UPI</option>
-          <option value="Cash">Cash</option>
+      <div class="form-group full-width">
+        <label>Payment Method (পেইমেণ্টৰ মাধ্যম) *</label>
+        <select id="pPaymentMode" onchange="handlePaymentModeChange()">
+          <option value="Cash">Cash (নগদ)</option>
+          <option value="UPI">UPI (অনলাইন)</option>
+          <option value="Split (Cash + UPI)">Split (Cash + UPI দুয়োটাতে)</option>
+          <option value="Not Paid / Due">Not Paid / সম্পূৰ্ণ বাকী (Due)</option>
         </select>
+      </div>
+
+      <!-- Split Payment Breakdown Inputs -->
+      <div id="splitPaymentRow" class="form-group full-width" style="display: none; background: #f0fdf4; padding: 12px; border-radius: var(--radius-sm); border: 1px solid #bbf7d0;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div>
+            <label style="color: #15803d; font-weight: 700;">Cash Amount (₹)</label>
+            <input type="number" id="pCashPart" placeholder="0" min="0" oninput="updateSplitTotal()">
+          </div>
+          <div>
+            <label style="color: #15803d; font-weight: 700;">UPI Amount (₹)</label>
+            <input type="number" id="pUpiPart" placeholder="0" min="0" oninput="updateSplitTotal()">
+          </div>
+        </div>
+      </div>
+
+      <!-- Paid Amount vs Due Calculation -->
+      <div class="form-group">
+        <label>Paid Amount (দিয়া ধন) ₹</label>
+        <input type="number" id="pPaidAmount" placeholder="0" min="0" oninput="calculateDue()">
+      </div>
+
+      <div class="form-group">
+        <label>Due Amount (বাকী থকা ধন) ₹</label>
+        <input type="number" id="pDueAmount" placeholder="0" readonly style="background-color: #fee2e2; color: #b91c1c; font-weight: 700;">
       </div>
 
       <!-- Discount Input (%) -->
@@ -641,18 +682,18 @@
       </div>
 
       <!-- Collection Charge Selector & Custom Input -->
-      <div class="form-group full-width">
-        <label>Home Collection Charge (সংগ্ৰহ মাচুল) *</label>
+      <div class="form-group">
+        <label>Home Collection Charge *</label>
         <div class="collection-row">
           <select id="pCollectionCharge" onchange="handleCollectionChargeChange()">
-            <option value="0">Free / Clinic Sample (₹0)</option>
-            <option value="50">Local / Town Area (₹50)</option>
-            <option value="100" selected>Standard Home Collection (₹100)</option>
-            <option value="150">Outskirts Area (₹150)</option>
+            <option value="0">Free / Clinic (₹0)</option>
+            <option value="50">Local / Town (₹50)</option>
+            <option value="100" selected>Standard (₹100)</option>
+            <option value="150">Outskirts (₹150)</option>
             <option value="200">Long Distance (₹200)</option>
-            <option value="custom">Custom Amount (নিজে মাচুল লিখক)...</option>
+            <option value="custom">Custom...</option>
           </select>
-          <input type="number" id="pCustomCharge" placeholder="মাচুলৰ পৰিমাণ দিয়ক (₹)" style="display: none;" oninput="updateTotal()" min="0" value="100">
+          <input type="number" id="pCustomCharge" placeholder="মাচুল (₹)" style="display: none;" oninput="updateTotal()" min="0" value="100">
         </div>
       </div>
     </div>
@@ -670,7 +711,7 @@
       <div class="upload-prompt">
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
         <div style="font-weight: 700; color: var(--text-main);">প্ৰেছক্ৰিপশ্বনৰ ফটো তোলক বা ফাইল আপলোড কৰক</div>
-        <div style="font-size: 11px; color: var(--text-muted);">Supports: Camera Photo, JPG, PNG, PDF (Max 10MB)</div>
+        <div style="font-size: 11px; color: var(--text-muted);">Supports: Camera Photo, JPG, PNG (Auto-Uploads for WhatsApp link)</div>
       </div>
     </div>
 
@@ -680,7 +721,7 @@
         <img id="previewImg" class="preview-thumbnail" src="" alt="Prescription Preview">
         <div class="preview-meta">
           <div class="preview-name" id="previewFileName">prescription.jpg</div>
-          <div class="preview-size" id="previewFileSize">240 KB</div>
+          <div class="preview-size" id="uploadStatusText" style="color: #0284c7; font-weight: 600;">Processing...</div>
         </div>
       </div>
       <button type="button" class="btn-remove-file" onclick="removePrescription()">Remove</button>
@@ -696,7 +737,7 @@
     
     <div class="search-box-wrapper">
       <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-      <input type="text" id="searchTest" placeholder="টেষ্টৰ নাম বিচাৰক (e.g. Full Body, CBC, Thyroid)..." oninput="filterTests()" autocomplete="off" autocorrect="off">
+      <input type="text" id="searchTest" placeholder="টেষ্টৰ নাম বিচাৰক (e.g. Full Body, CBC, Thyroid)..." oninput="filterTests()" autocomplete="off">
     </div>
     
     <!-- Test List Box -->
@@ -737,7 +778,7 @@
       <div style="grid-column: span 2;"><strong>Phone:</strong> <span id="rPhone"></span></div>
       <div style="grid-column: span 2;"><strong>Location:</strong> <span id="rAddress"></span></div>
       <div style="grid-column: span 2;"><strong>Report Delivery:</strong> <span id="rReportMode" style="font-weight: 700; color: #059669;"></span></div>
-      <div style="grid-column: span 2;"><strong>Payment Status:</strong> <span id="rPaymentMode" style="font-weight: 700; color: #023e8a;"></span></div>
+      <div style="grid-column: span 2;"><strong>Payment Method:</strong> <span id="rPaymentMode" style="font-weight: 700; color: #023e8a;"></span></div>
     </div>
 
     <!-- Prescription Attachment Badge in Receipt -->
@@ -779,8 +820,26 @@
       <span style="color: #0077b6;">₹<span id="rTotal">0</span></span>
     </div>
 
+    <!-- Paid and Due Details in Receipt -->
+    <div style="margin-top: 6px; background: #f8fafc; padding: 8px 10px; border-radius: 6px;">
+      <div class="receipt-total-row" style="color: #15803d; font-weight: 700;">
+        <span>Paid Amount:</span>
+        <span>₹<span id="rPaid">0</span></span>
+      </div>
+      <div class="receipt-total-row" style="color: #dc2626; font-weight: 700;" id="rDueRow">
+        <span>Due Amount (বাকী):</span>
+        <span>₹<span id="rDue">0</span></span>
+      </div>
+    </div>
+
     <!-- Action Buttons -->
     <div class="receipt-actions">
+      <!-- Direct Download PDF Button -->
+      <button class="btn-pdf" id="btnDownloadPdf" onclick="downloadPDFReceipt()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        Download Receipt (PDF)
+      </button>
+
       <button class="btn-whatsapp" onclick="shareOnWhatsApp()">
         <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
           <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
@@ -959,11 +1018,41 @@
 
   let selectedTests = [];
   let uploadedPrescriptionFile = null;
+  let onlinePrescriptionUrl = '';
 
   function getVialClass(vial) {
     if (vial.includes('&') || vial.includes(',')) return 'vial-MULTI';
     if (vial === 'PF') return 'vial-PF';
     return `vial-${vial}`;
+  }
+
+  async function uploadToCloud(file) {
+    const statusText = document.getElementById('uploadStatusText');
+    statusText.innerText = "Uploading photo to cloud...";
+    statusText.style.color = "#d97706";
+
+    const apiKey = "2c5a01bc1829e054ff8e718b53ba2fb7"; // ImgBB Public API
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+      const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+        method: "POST",
+        body: formData
+      });
+      const data = await response.json();
+      if (data.success) {
+        onlinePrescriptionUrl = data.data.url;
+        statusText.innerText = "Uploaded & Ready for WhatsApp Link";
+        statusText.style.color = "#16a34a";
+      } else {
+        throw new Error("Failed");
+      }
+    } catch (err) {
+      statusText.innerText = "Upload failed (Attachment info only)";
+      statusText.style.color = "#dc2626";
+      onlinePrescriptionUrl = '';
+    }
   }
 
   function handlePrescriptionUpload(event) {
@@ -972,7 +1061,6 @@
 
     uploadedPrescriptionFile = file;
     document.getElementById('previewFileName').innerText = file.name;
-    document.getElementById('previewFileSize').innerText = `${(file.size / 1024).toFixed(1)} KB`;
 
     if (file.type.startsWith('image/')) {
       const reader = new FileReader();
@@ -981,9 +1069,13 @@
         document.getElementById('previewImg').style.display = 'block';
       };
       reader.readAsDataURL(file);
+      uploadToCloud(file);
     } else {
       document.getElementById('previewImg').src = 'https://cdn-icons-png.flaticon.com/512/337/337946.png';
       document.getElementById('previewImg').style.display = 'block';
+      document.getElementById('uploadStatusText').innerText = "PDF attached";
+      document.getElementById('uploadStatusText').style.color = "#0284c7";
+      onlinePrescriptionUrl = '';
     }
 
     document.getElementById('previewContainer').style.display = 'flex';
@@ -991,6 +1083,7 @@
 
   function removePrescription() {
     uploadedPrescriptionFile = null;
+    onlinePrescriptionUrl = '';
     document.getElementById('prescriptionFile').value = '';
     document.getElementById('previewContainer').style.display = 'none';
   }
@@ -1123,20 +1216,65 @@
     updateTotal();
   }
 
-  function updateTotal() {
+  function handlePaymentModeChange() {
+    const mode = document.getElementById('pPaymentMode').value;
+    const splitRow = document.getElementById('splitPaymentRow');
+    const grandTotal = calculateGrandTotal();
+
+    if (mode === 'Split (Cash + UPI)') {
+      splitRow.style.display = 'block';
+      document.getElementById('pCashPart').value = '';
+      document.getElementById('pUpiPart').value = '';
+      document.getElementById('pPaidAmount').value = 0;
+    } else {
+      splitRow.style.display = 'none';
+      if (mode === 'Not Paid / Due') {
+        document.getElementById('pPaidAmount').value = 0;
+      } else {
+        document.getElementById('pPaidAmount').value = grandTotal;
+      }
+    }
+    calculateDue();
+  }
+
+  function updateSplitTotal() {
+    const cash = parseFloat(document.getElementById('pCashPart').value) || 0;
+    const upi = parseFloat(document.getElementById('pUpiPart').value) || 0;
+    document.getElementById('pPaidAmount').value = cash + upi;
+    calculateDue();
+  }
+
+  function calculateGrandTotal() {
     const testsSubtotal = selectedTests.reduce((acc, curr) => acc + curr.price, 0);
     const collectionCharge = getActiveCollectionCharge();
-    
     let discountPercent = parseFloat(document.getElementById('pDiscount').value) || 0;
     if (discountPercent < 0) discountPercent = 0;
     if (discountPercent > 100) discountPercent = 100;
 
     const discountAmount = Math.round((testsSubtotal * discountPercent) / 100);
-    const grandTotal = Math.max(0, (testsSubtotal - discountAmount) + collectionCharge);
+    return Math.max(0, (testsSubtotal - discountAmount) + collectionCharge);
+  }
+
+  function calculateDue() {
+    const grandTotal = calculateGrandTotal();
+    const paid = parseFloat(document.getElementById('pPaidAmount').value) || 0;
+    const due = Math.max(0, grandTotal - paid);
+    document.getElementById('pDueAmount').value = due;
+  }
+
+  function updateTotal() {
+    const grandTotal = calculateGrandTotal();
+    const collectionCharge = getActiveCollectionCharge();
 
     document.getElementById('totalDisplay').innerText = grandTotal;
     document.getElementById('selectedCount').innerText = selectedTests.length;
     document.getElementById('footerChargeBadge').innerText = `(+ ₹${collectionCharge} Col.)`;
+
+    const mode = document.getElementById('pPaymentMode').value;
+    if (mode !== 'Split (Cash + UPI)' && mode !== 'Not Paid / Due') {
+      document.getElementById('pPaidAmount').value = grandTotal;
+    }
+    calculateDue();
   }
 
   function generateReceipt() {
@@ -1149,6 +1287,8 @@
     const reportMode = document.getElementById('pReportMode').value;
     const paymentMode = document.getElementById('pPaymentMode').value;
     const collectionCharge = getActiveCollectionCharge();
+    const paidAmount = parseFloat(document.getElementById('pPaidAmount').value) || 0;
+    const dueAmount = parseFloat(document.getElementById('pDueAmount').value) || 0;
 
     let discountPercent = parseFloat(document.getElementById('pDiscount').value) || 0;
     if (discountPercent < 0) discountPercent = 0;
@@ -1174,7 +1314,14 @@
     document.getElementById('rPhone').innerText = phone;
     document.getElementById('rAddress').innerText = address || 'N/A';
     document.getElementById('rReportMode').innerText = reportMode;
-    document.getElementById('rPaymentMode').innerText = paymentMode;
+
+    let paymentDisplayText = paymentMode;
+    if (paymentMode === 'Split (Cash + UPI)') {
+      const cash = document.getElementById('pCashPart').value || '0';
+      const upi = document.getElementById('pUpiPart').value || '0';
+      paymentDisplayText = `Split (Cash: ₹${cash}, UPI: ₹${upi})`;
+    }
+    document.getElementById('rPaymentMode').innerText = paymentDisplayText;
 
     const pNotice = document.getElementById('rPrescriptionNotice');
     if (uploadedPrescriptionFile) {
@@ -1224,7 +1371,37 @@
 
     document.getElementById('rCollectionCharge').innerText = collectionCharge;
     document.getElementById('rTotal').innerText = grandTotal;
+    document.getElementById('rPaid').innerText = paidAmount;
+    document.getElementById('rDue').innerText = dueAmount;
+
     document.getElementById('receiptModal').style.display = 'block';
+  }
+
+  // Direct PDF Download Function
+  function downloadPDFReceipt() {
+    const element = document.getElementById('receiptContent');
+    const actions = element.querySelector('.receipt-actions');
+    const patientName = document.getElementById('rName').innerText || 'Patient';
+    const cleanFileName = `MediTree_Receipt_${patientName.replace(/\s+/g, '_')}.pdf`;
+
+    // Temporarily hide buttons while rendering PDF
+    actions.style.display = 'none';
+
+    const opt = {
+      margin:       [10, 10, 10, 10],
+      filename:     cleanFileName,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(element).save().then(() => {
+      actions.style.display = 'flex';
+    }).catch(err => {
+      console.error(err);
+      actions.style.display = 'flex';
+      alert("PDF তৈয়াৰ কৰোঁতে সমস্যা হৈছে, অনুগ্ৰহ কৰি পুনৰ চেষ্টা কৰক।");
+    });
   }
 
   function shareOnWhatsApp() {
@@ -1239,6 +1416,8 @@
     const subTotal = document.getElementById('rSubTotal').innerText;
     const collectionCharge = document.getElementById('rCollectionCharge').innerText;
     const grandTotal = document.getElementById('rTotal').innerText;
+    const paidAmount = document.getElementById('rPaid').innerText;
+    const dueAmount = document.getElementById('rDue').innerText;
 
     let discountPercent = parseFloat(document.getElementById('pDiscount').value) || 0;
     const testsSubtotal = selectedTests.reduce((acc, curr) => acc + curr.price, 0);
@@ -1248,11 +1427,17 @@
       ? selectedTests.map((t, index) => `${index + 1}. ${t.name} [${t.vial}] - ₹${t.price}`).join('\n')
       : "• (Prescription-based tests to be verified by laboratory)";
 
-    let prescriptionText = uploadedPrescriptionFile 
-      ? `📄 *Prescription:* Attached (${uploadedPrescriptionFile.name})`
-      : `📄 *Prescription:* None / Direct selection`;
+    let prescriptionText = "📄 *Prescription:* None / Direct selection";
+    if (uploadedPrescriptionFile) {
+      if (onlinePrescriptionUrl) {
+        prescriptionText = `📸 *Prescription Photo Link:* ${onlinePrescriptionUrl}`;
+      } else {
+        prescriptionText = `📄 *Prescription File:* Attached (${uploadedPrescriptionFile.name})`;
+      }
+    }
 
     let discountText = discountPercent > 0 ? `\n🏷️ *Discount (${discountPercent}%):* - ₹${discountAmount}` : '';
+    let dueAlert = parseFloat(dueAmount) > 0 ? `\n⚠️ *Due Balance (বাকী ধন):* ₹${dueAmount}` : '\n✅ *Payment Status:* Fully Cleared';
 
     const formattedMessage = `🏥 *MEDITREE CLINIC & DIAGNOSTIC CENTRE LLP*
 _Home Sample Collection Booking_
@@ -1263,7 +1448,7 @@ _Home Sample Collection Booking_
 📞 *Phone:* ${phone}
 📍 *Address:* ${address}
 🚚 *Report Delivery:* ${reportMode}
-💳 *Payment Status:* ${paymentMode}
+💳 *Payment Method:* ${paymentMode}
 ${prescriptionText}
 
 🧪 *Selected Tests (${selectedTests.length}):*
@@ -1273,6 +1458,8 @@ ${testListText}
 💵 *Tests Subtotal:* ₹${subTotal}${discountText}
 🛵 *Collection Charge:* ₹${collectionCharge}
 💰 *Grand Total:* ₹${grandTotal}
+━━━━━━━━━━━━━━━━━━━━━━━━━
+🟢 *Paid Amount (দিয়া ধন):* ₹${paidAmount}${dueAlert}
 ═════════════════════════
 _Your Health, Our Responsibility._
 📍 _Near SKK Civil Hospital, Golaghat_
@@ -1298,6 +1485,11 @@ _Your Health, Our Responsibility._
       document.getElementById('pAddress').value = '';
       document.getElementById('pReportMode').selectedIndex = 0;
       document.getElementById('pPaymentMode').selectedIndex = 0;
+      document.getElementById('splitPaymentRow').style.display = 'none';
+      document.getElementById('pCashPart').value = '';
+      document.getElementById('pUpiPart').value = '';
+      document.getElementById('pPaidAmount').value = '';
+      document.getElementById('pDueAmount').value = '';
       document.getElementById('pDiscount').value = '0';
       document.getElementById('pCollectionCharge').value = '100';
       document.getElementById('pCustomCharge').value = '100';
