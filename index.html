@@ -173,6 +173,24 @@
       gap: 10px;
     }
 
+    /* Payment Box Special Styling */
+    .payment-container-box {
+      background: #f8fafc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      margin-top: 4px;
+    }
+
+    .split-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--border);
+    }
+
     /* Prescription Upload Box */
     .upload-zone {
       border: 2px dashed #cbd5e1;
@@ -639,42 +657,6 @@
         </select>
       </div>
 
-      <!-- Payment Mode Selector -->
-      <div class="form-group full-width">
-        <label>Payment Method (পেইমেণ্টৰ মাধ্যম) *</label>
-        <select id="pPaymentMode" onchange="handlePaymentModeChange()">
-          <option value="Cash">Cash (নগদ)</option>
-          <option value="UPI">UPI (অনলাইন)</option>
-          <option value="Split (Cash + UPI)">Split (Cash + UPI দুয়োটাতে)</option>
-          <option value="Not Paid / Due">Not Paid / সম্পূৰ্ণ বাকী (Due)</option>
-        </select>
-      </div>
-
-      <!-- Split Payment Breakdown Inputs -->
-      <div id="splitPaymentRow" class="form-group full-width" style="display: none; background: #f0fdf4; padding: 12px; border-radius: var(--radius-sm); border: 1px solid #bbf7d0;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-          <div>
-            <label style="color: #15803d; font-weight: 700;">Cash Amount (₹)</label>
-            <input type="number" id="pCashPart" placeholder="0" min="0" oninput="updateSplitTotal()">
-          </div>
-          <div>
-            <label style="color: #15803d; font-weight: 700;">UPI Amount (₹)</label>
-            <input type="number" id="pUpiPart" placeholder="0" min="0" oninput="updateSplitTotal()">
-          </div>
-        </div>
-      </div>
-
-      <!-- Paid Amount vs Due Calculation -->
-      <div class="form-group">
-        <label>Paid Amount (দিয়া ধন) ₹</label>
-        <input type="number" id="pPaidAmount" placeholder="0" min="0" oninput="calculateDue()">
-      </div>
-
-      <div class="form-group">
-        <label>Due Amount (বাকী থকা ধন) ₹</label>
-        <input type="number" id="pDueAmount" placeholder="0" readonly style="background-color: #fee2e2; color: #b91c1c; font-weight: 700;">
-      </div>
-
       <!-- Discount Input (%) -->
       <div class="form-group">
         <label>Discount % (ৰেহাই শতাংশ)</label>
@@ -694,6 +676,46 @@
             <option value="custom">Custom...</option>
           </select>
           <input type="number" id="pCustomCharge" placeholder="মাচুল (₹)" style="display: none;" oninput="updateTotal()" min="0" value="100">
+        </div>
+      </div>
+
+      <!-- Comprehensive Payment Box -->
+      <div class="form-group full-width">
+        <label style="font-weight: 700; color: var(--primary-dark);">💳 পেইমেণ্ট আৰু বাকীৰ হিচাপ (Payment Breakdown)</label>
+        <div class="payment-container-box">
+          <div>
+            <label>পেইমেণ্টৰ ধৰণ (Payment Mode)</label>
+            <select id="pPaymentMode" onchange="handlePaymentModeChange()">
+              <option value="Split">Split (Cash + UPI দুয়োটা পৃথককৈ)</option>
+              <option value="Cash">Cash (সম্পূৰ্ণ নগদ)</option>
+              <option value="UPI">UPI (সম্পূৰ্ণ অনলাইন)</option>
+              <option value="Not Paid">Not Paid / বাকী (Due)</option>
+            </select>
+          </div>
+
+          <!-- Cash and UPI Specific Inputs -->
+          <div class="split-grid" id="paymentInputGrid">
+            <div>
+              <label style="color: #0f172a; font-weight: 700;">💵 Cash দিছে (₹):</label>
+              <input type="number" id="pCashAmount" placeholder="0" min="0" value="0" oninput="calculatePaymentBreakdown()">
+            </div>
+            <div>
+              <label style="color: #0284c7; font-weight: 700;">📱 UPI দিছে (₹):</label>
+              <input type="number" id="pUpiAmount" placeholder="0" min="0" value="0" oninput="calculatePaymentBreakdown()">
+            </div>
+          </div>
+
+          <!-- Total Paid and Due Indicator -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+            <div>
+              <label style="color: #15803d; font-weight: 700;">মুঠ দিয়া ধন (Total Paid):</label>
+              <input type="number" id="pPaidAmount" readonly style="background-color: #f0fdf4; color: #15803d; font-weight: 800;" value="0">
+            </div>
+            <div>
+              <label style="color: #b91c1c; font-weight: 700;">বাকী ধন (Due Balance):</label>
+              <input type="number" id="pDueAmount" readonly style="background-color: #fee2e2; color: #b91c1c; font-weight: 800;" value="0">
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -778,7 +800,7 @@
       <div style="grid-column: span 2;"><strong>Phone:</strong> <span id="rPhone"></span></div>
       <div style="grid-column: span 2;"><strong>Location:</strong> <span id="rAddress"></span></div>
       <div style="grid-column: span 2;"><strong>Report Delivery:</strong> <span id="rReportMode" style="font-weight: 700; color: #059669;"></span></div>
-      <div style="grid-column: span 2;"><strong>Payment Method:</strong> <span id="rPaymentMode" style="font-weight: 700; color: #023e8a;"></span></div>
+      <div style="grid-column: span 2;"><strong>Payment Mode:</strong> <span id="rPaymentMode" style="font-weight: 700; color: #023e8a;"></span></div>
     </div>
 
     <!-- Prescription Attachment Badge in Receipt -->
@@ -820,13 +842,21 @@
       <span style="color: #0077b6;">₹<span id="rTotal">0</span></span>
     </div>
 
-    <!-- Paid and Due Details in Receipt -->
-    <div style="margin-top: 6px; background: #f8fafc; padding: 8px 10px; border-radius: 6px;">
-      <div class="receipt-total-row" style="color: #15803d; font-weight: 700;">
-        <span>Paid Amount:</span>
+    <!-- Paid (Cash/UPI) and Due Details in Receipt -->
+    <div style="margin-top: 8px; background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 12px; border-radius: 8px;">
+      <div class="receipt-total-row" style="color: #0f172a;">
+        <span>💵 Cash Paid:</span>
+        <span style="font-weight: 700;">₹<span id="rCashPaid">0</span></span>
+      </div>
+      <div class="receipt-total-row" style="color: #0284c7;">
+        <span>📱 UPI Paid:</span>
+        <span style="font-weight: 700;">₹<span id="rUpiPaid">0</span></span>
+      </div>
+      <div class="receipt-total-row" style="color: #15803d; font-weight: 800; border-top: 1px dashed #cbd5e1; margin-top: 4px; padding-top: 4px;">
+        <span>Total Paid Amount:</span>
         <span>₹<span id="rPaid">0</span></span>
       </div>
-      <div class="receipt-total-row" style="color: #dc2626; font-weight: 700;" id="rDueRow">
+      <div class="receipt-total-row" style="color: #dc2626; font-weight: 800; border-top: 1px dashed #cbd5e1; margin-top: 4px; padding-top: 4px;">
         <span>Due Amount (বাকী):</span>
         <span>₹<span id="rDue">0</span></span>
       </div>
@@ -1216,34 +1246,6 @@
     updateTotal();
   }
 
-  function handlePaymentModeChange() {
-    const mode = document.getElementById('pPaymentMode').value;
-    const splitRow = document.getElementById('splitPaymentRow');
-    const grandTotal = calculateGrandTotal();
-
-    if (mode === 'Split (Cash + UPI)') {
-      splitRow.style.display = 'block';
-      document.getElementById('pCashPart').value = '';
-      document.getElementById('pUpiPart').value = '';
-      document.getElementById('pPaidAmount').value = 0;
-    } else {
-      splitRow.style.display = 'none';
-      if (mode === 'Not Paid / Due') {
-        document.getElementById('pPaidAmount').value = 0;
-      } else {
-        document.getElementById('pPaidAmount').value = grandTotal;
-      }
-    }
-    calculateDue();
-  }
-
-  function updateSplitTotal() {
-    const cash = parseFloat(document.getElementById('pCashPart').value) || 0;
-    const upi = parseFloat(document.getElementById('pUpiPart').value) || 0;
-    document.getElementById('pPaidAmount').value = cash + upi;
-    calculateDue();
-  }
-
   function calculateGrandTotal() {
     const testsSubtotal = selectedTests.reduce((acc, curr) => acc + curr.price, 0);
     const collectionCharge = getActiveCollectionCharge();
@@ -1255,10 +1257,33 @@
     return Math.max(0, (testsSubtotal - discountAmount) + collectionCharge);
   }
 
-  function calculateDue() {
+  // Payment Breakdown Handling (Cash + UPI + Due)
+  function handlePaymentModeChange() {
+    const mode = document.getElementById('pPaymentMode').value;
     const grandTotal = calculateGrandTotal();
-    const paid = parseFloat(document.getElementById('pPaidAmount').value) || 0;
-    const due = Math.max(0, grandTotal - paid);
+
+    if (mode === 'Cash') {
+      document.getElementById('pCashAmount').value = grandTotal;
+      document.getElementById('pUpiAmount').value = 0;
+    } else if (mode === 'UPI') {
+      document.getElementById('pCashAmount').value = 0;
+      document.getElementById('pUpiAmount').value = grandTotal;
+    } else if (mode === 'Not Paid') {
+      document.getElementById('pCashAmount').value = 0;
+      document.getElementById('pUpiAmount').value = 0;
+    }
+    calculatePaymentBreakdown();
+  }
+
+  function calculatePaymentBreakdown() {
+    const cash = parseFloat(document.getElementById('pCashAmount').value) || 0;
+    const upi = parseFloat(document.getElementById('pUpiAmount').value) || 0;
+    const grandTotal = calculateGrandTotal();
+
+    const totalPaid = cash + upi;
+    const due = Math.max(0, grandTotal - totalPaid);
+
+    document.getElementById('pPaidAmount').value = totalPaid;
     document.getElementById('pDueAmount').value = due;
   }
 
@@ -1271,10 +1296,14 @@
     document.getElementById('footerChargeBadge').innerText = `(+ ₹${collectionCharge} Col.)`;
 
     const mode = document.getElementById('pPaymentMode').value;
-    if (mode !== 'Split (Cash + UPI)' && mode !== 'Not Paid / Due') {
-      document.getElementById('pPaidAmount').value = grandTotal;
+    if (mode === 'Cash') {
+      document.getElementById('pCashAmount').value = grandTotal;
+      document.getElementById('pUpiAmount').value = 0;
+    } else if (mode === 'UPI') {
+      document.getElementById('pCashAmount').value = 0;
+      document.getElementById('pUpiAmount').value = grandTotal;
     }
-    calculateDue();
+    calculatePaymentBreakdown();
   }
 
   function generateReceipt() {
@@ -1287,7 +1316,10 @@
     const reportMode = document.getElementById('pReportMode').value;
     const paymentMode = document.getElementById('pPaymentMode').value;
     const collectionCharge = getActiveCollectionCharge();
-    const paidAmount = parseFloat(document.getElementById('pPaidAmount').value) || 0;
+
+    const cashAmount = parseFloat(document.getElementById('pCashAmount').value) || 0;
+    const upiAmount = parseFloat(document.getElementById('pUpiAmount').value) || 0;
+    const totalPaid = cashAmount + upiAmount;
     const dueAmount = parseFloat(document.getElementById('pDueAmount').value) || 0;
 
     let discountPercent = parseFloat(document.getElementById('pDiscount').value) || 0;
@@ -1314,14 +1346,7 @@
     document.getElementById('rPhone').innerText = phone;
     document.getElementById('rAddress').innerText = address || 'N/A';
     document.getElementById('rReportMode').innerText = reportMode;
-
-    let paymentDisplayText = paymentMode;
-    if (paymentMode === 'Split (Cash + UPI)') {
-      const cash = document.getElementById('pCashPart').value || '0';
-      const upi = document.getElementById('pUpiPart').value || '0';
-      paymentDisplayText = `Split (Cash: ₹${cash}, UPI: ₹${upi})`;
-    }
-    document.getElementById('rPaymentMode').innerText = paymentDisplayText;
+    document.getElementById('rPaymentMode').innerText = paymentMode;
 
     const pNotice = document.getElementById('rPrescriptionNotice');
     if (uploadedPrescriptionFile) {
@@ -1371,7 +1396,11 @@
 
     document.getElementById('rCollectionCharge').innerText = collectionCharge;
     document.getElementById('rTotal').innerText = grandTotal;
-    document.getElementById('rPaid').innerText = paidAmount;
+    
+    // Receipt Payment Specific Figures
+    document.getElementById('rCashPaid').innerText = cashAmount;
+    document.getElementById('rUpiPaid').innerText = upiAmount;
+    document.getElementById('rPaid').innerText = totalPaid;
     document.getElementById('rDue').innerText = dueAmount;
 
     document.getElementById('receiptModal').style.display = 'block';
@@ -1384,7 +1413,6 @@
     const patientName = document.getElementById('rName').innerText || 'Patient';
     const cleanFileName = `MediTree_Receipt_${patientName.replace(/\s+/g, '_')}.pdf`;
 
-    // Temporarily hide buttons while rendering PDF
     actions.style.display = 'none';
 
     const opt = {
@@ -1411,11 +1439,13 @@
     const phone = document.getElementById('rPhone').innerText;
     const address = document.getElementById('rAddress').innerText;
     const reportMode = document.getElementById('rReportMode').innerText;
-    const paymentMode = document.getElementById('rPaymentMode').innerText;
     const date = document.getElementById('rDate').innerText;
     const subTotal = document.getElementById('rSubTotal').innerText;
     const collectionCharge = document.getElementById('rCollectionCharge').innerText;
     const grandTotal = document.getElementById('rTotal').innerText;
+    
+    const cashAmount = document.getElementById('rCashPaid').innerText;
+    const upiAmount = document.getElementById('rUpiPaid').innerText;
     const paidAmount = document.getElementById('rPaid').innerText;
     const dueAmount = document.getElementById('rDue').innerText;
 
@@ -1437,7 +1467,7 @@
     }
 
     let discountText = discountPercent > 0 ? `\n🏷️ *Discount (${discountPercent}%):* - ₹${discountAmount}` : '';
-    let dueAlert = parseFloat(dueAmount) > 0 ? `\n⚠️ *Due Balance (বাকী ধন):* ₹${dueAmount}` : '\n✅ *Payment Status:* Fully Cleared';
+    let dueAlert = parseFloat(dueAmount) > 0 ? `\n⚠️ *Due Balance (বাকী ধন):* ₹${dueAmount}` : '\n✅ *Status:* Fully Cleared (সম্পূৰ্ণ পৰিশোধিত)';
 
     const formattedMessage = `🏥 *MEDITREE CLINIC & DIAGNOSTIC CENTRE LLP*
 _Home Sample Collection Booking_
@@ -1448,7 +1478,6 @@ _Home Sample Collection Booking_
 📞 *Phone:* ${phone}
 📍 *Address:* ${address}
 🚚 *Report Delivery:* ${reportMode}
-💳 *Payment Method:* ${paymentMode}
 ${prescriptionText}
 
 🧪 *Selected Tests (${selectedTests.length}):*
@@ -1459,7 +1488,10 @@ ${testListText}
 🛵 *Collection Charge:* ₹${collectionCharge}
 💰 *Grand Total:* ₹${grandTotal}
 ━━━━━━━━━━━━━━━━━━━━━━━━━
-🟢 *Paid Amount (দিয়া ধন):* ₹${paidAmount}${dueAlert}
+💳 *Payment Breakdown:*
+  • 💵 Cash Paid: ₹${cashAmount}
+  • 📱 UPI Paid: ₹${upiAmount}
+🟢 *Total Paid (মুঠ আদায়):* ₹${paidAmount}${dueAlert}
 ═════════════════════════
 _Your Health, Our Responsibility._
 📍 _Near SKK Civil Hospital, Golaghat_
@@ -1485,11 +1517,10 @@ _Your Health, Our Responsibility._
       document.getElementById('pAddress').value = '';
       document.getElementById('pReportMode').selectedIndex = 0;
       document.getElementById('pPaymentMode').selectedIndex = 0;
-      document.getElementById('splitPaymentRow').style.display = 'none';
-      document.getElementById('pCashPart').value = '';
-      document.getElementById('pUpiPart').value = '';
-      document.getElementById('pPaidAmount').value = '';
-      document.getElementById('pDueAmount').value = '';
+      document.getElementById('pCashAmount').value = '0';
+      document.getElementById('pUpiAmount').value = '0';
+      document.getElementById('pPaidAmount').value = '0';
+      document.getElementById('pDueAmount').value = '0';
       document.getElementById('pDiscount').value = '0';
       document.getElementById('pCollectionCharge').value = '100';
       document.getElementById('pCustomCharge').value = '100';
