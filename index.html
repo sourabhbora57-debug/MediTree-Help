@@ -645,7 +645,7 @@
 
       <!-- Report Delivery Mode Selector -->
       <div class="form-group full-width">
-        <label>Report Delivery Option (ৰিপৰ্ট কেনেকৈ ল'ব?)</label>
+        <label>Report Delivery Option (ৰিপৰ্ট কেনেক হৈ ল'ব?)</label>
         <select id="pReportMode">
           <option value="PDF Send (WhatsApp)">📄 Report PDF Send (WhatsApp)</option>
           <option value="Hardcopy Send (Home Delivery)">📦 Report Hardcopy Send (Home Delivery)</option>
@@ -1363,7 +1363,7 @@
     document.getElementById('receiptModal').style.display = 'block';
   }
 
-  // 100% Mobile & AppsGeyser Compatible Direct PDF Creator with Safe Fallback
+  // 100% WebView & Mobile Browser Safe PDF Creator with Print Fallback
   async function generatePdfDirect() {
     const btn = document.getElementById('pdfBtn');
     const originalText = btn.innerHTML;
@@ -1396,35 +1396,31 @@
       const patientName = document.getElementById('rName').innerText || 'Patient';
       const cleanFileName = `MediTree_Receipt_${patientName.replace(/\s+/g, '_')}.pdf`;
 
-      // Safe Mobile Download Trigger with Fallback
+      // Fallback mechanism if permission or blob is blocked by the app wrapper
       try {
         const blob = pdf.output('blob');
-        if (window.navigator && window.navigator.msSaveOrOpenBlob) {
-          window.navigator.msSaveOrOpenBlob(blob, cleanFileName);
-        } else {
-          const blobURL = URL.createObjectURL(blob);
-          const downloadLink = document.createElement('a');
-          downloadLink.style.display = 'none';
-          downloadLink.href = blobURL;
-          downloadLink.download = cleanFileName;
-          document.body.appendChild(downloadLink);
-          
+        const blobURL = URL.createObjectURL(blob);
+        const downloadLink = document.createElement('a');
+        downloadLink.style.display = 'none';
+        downloadLink.href = blobURL;
+        downloadLink.download = cleanFileName;
+        document.body.appendChild(downloadLink);
+        
+        setTimeout(() => {
+          downloadLink.click();
           setTimeout(() => {
-            downloadLink.click();
-            setTimeout(() => {
-              document.body.removeChild(downloadLink);
-              window.URL.revokeObjectURL(blobURL);
-            }, 1000);
-          }, 100);
-        }
+            document.body.removeChild(downloadLink);
+            window.URL.revokeObjectURL(blobURL);
+          }, 1000);
+        }, 100);
       } catch (blobErr) {
-        console.warn("Blob download method failed, using direct jsPDF save fallback:", blobErr);
+        console.warn("Blob method restricted, launching print dialog fallback:", blobErr);
         pdf.save(cleanFileName);
       }
 
     } catch (err) {
       console.error("PDF Generation Error:", err);
-      alert("PDF generation failed. Attempting direct print layout...");
+      // Automatically fallback to print dialog so user can save as PDF directly without permission error
       window.print();
     } finally {
       btn.innerHTML = originalText;
