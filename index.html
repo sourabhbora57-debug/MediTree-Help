@@ -1363,7 +1363,7 @@
     document.getElementById('receiptModal').style.display = 'block';
   }
 
-  // 100% Mobile & AppsGeyser Compatible Direct PDF Creator
+  // 100% Mobile & AppsGeyser Compatible Direct PDF Creator with Safe Fallback
   async function generatePdfDirect() {
     const btn = document.getElementById('pdfBtn');
     const originalText = btn.innerHTML;
@@ -1396,20 +1396,35 @@
       const patientName = document.getElementById('rName').innerText || 'Patient';
       const cleanFileName = `MediTree_Receipt_${patientName.replace(/\s+/g, '_')}.pdf`;
 
-      // Memory Blob Trigger (Safe for Android WebViews)
-      const blob = pdf.output('blob');
-      const blobURL = URL.createObjectURL(blob);
-      const downloadLink = document.createElement('a');
-      downloadLink.href = blobURL;
-      downloadLink.download = cleanFileName;
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
-      setTimeout(() => URL.revokeObjectURL(blobURL), 2000);
+      // Safe Mobile Download Trigger with Fallback
+      try {
+        const blob = pdf.output('blob');
+        if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+          window.navigator.msSaveOrOpenBlob(blob, cleanFileName);
+        } else {
+          const blobURL = URL.createObjectURL(blob);
+          const downloadLink = document.createElement('a');
+          downloadLink.style.display = 'none';
+          downloadLink.href = blobURL;
+          downloadLink.download = cleanFileName;
+          document.body.appendChild(downloadLink);
+          
+          setTimeout(() => {
+            downloadLink.click();
+            setTimeout(() => {
+              document.body.removeChild(downloadLink);
+              window.URL.revokeObjectURL(blobURL);
+            }, 1000);
+          }, 100);
+        }
+      } catch (blobErr) {
+        console.warn("Blob download method failed, using direct jsPDF save fallback:", blobErr);
+        pdf.save(cleanFileName);
+      }
 
     } catch (err) {
-      console.error(err);
-      // Fallback to direct print if canvas fails
+      console.error("PDF Generation Error:", err);
+      alert("PDF generation failed. Attempting direct print layout...");
       window.print();
     } finally {
       btn.innerHTML = originalText;
